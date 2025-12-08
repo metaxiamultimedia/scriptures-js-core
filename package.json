@@ -1,0 +1,68 @@
+{
+  "name": "@metaxia/scriptures-core",
+  "version": "0.1.0",
+  "description": "The foundational engine for the Metaxia Scriptures ecosystem. Core API, registry system, gematria, morphology, and analysis tools.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./gematria": {
+      "types": "./dist/gematria/index.d.ts",
+      "import": "./dist/gematria/index.js"
+    },
+    "./morphology": {
+      "types": "./dist/morphology/index.d.ts",
+      "import": "./dist/morphology/index.js"
+    },
+    "./tests/shared": {
+      "types": "./tests/shared/index.d.ts",
+      "import": "./tests/shared/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "tests/shared"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepare": "test -f node_modules/.bin/tsc && npm run build || true",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "bible",
+    "scripture",
+    "gematria",
+    "hebrew",
+    "greek",
+    "morphology",
+    "strongs"
+  ],
+  "author": "Benjamin Plunkert",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/metaxiamultimedia/scriptures-js-core"
+  },
+  "bugs": {
+    "url": "https://github.com/metaxiamultimedia/scriptures-js-core/issues"
+  },
+  "homepage": "https://github.com/metaxiamultimedia/scriptures-js-core#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "typescript": "^5.3.0",
+    "typescript-eslint": "^8.0.0",
+    "vitest": "^1.0.0"
+  }
+}
