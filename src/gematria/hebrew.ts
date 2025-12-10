@@ -20,15 +20,16 @@ const HEBREW_STANDARD: Record<string, number> = {
 /**
  * Ordinal Hebrew letter values (Mispar Siduri).
  * Each letter is numbered 1-22 based on position in alphabet.
- * Final letters (sofit) continue the sequence 23-27.
+ * Final letters (sofit) share the same ordinal value as their base forms,
+ * consistent with traditional rabbinic practice.
  */
 const HEBREW_ORDINAL: Record<string, number> = {
   'א': 1,  'ב': 2,  'ג': 3,  'ד': 4,  'ה': 5,
   'ו': 6,  'ז': 7,  'ח': 8,  'ט': 9,  'י': 10,
-  'כ': 11, 'ל': 12, 'מ': 13, 'נ': 14, 'ס': 15,
-  'ע': 16, 'פ': 17, 'צ': 18, 'ק': 19, 'ר': 20,
+  'כ': 11, 'ך': 11, 'ל': 12, 'מ': 13, 'ם': 13,
+  'נ': 14, 'ן': 14, 'ס': 15, 'ע': 16, 'פ': 17,
+  'ף': 17, 'צ': 18, 'ץ': 18, 'ק': 19, 'ר': 20,
   'ש': 21, 'ת': 22,
-  'ך': 23, 'ם': 24, 'ן': 25, 'ף': 26, 'ץ': 27,
 };
 
 /**

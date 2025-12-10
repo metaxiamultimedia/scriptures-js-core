@@ -27,7 +27,17 @@ const GREEK_VALUES: Record<string, number> = {
 };
 
 /**
+ * Archaic Greek letters (stigma, koppa, sampi).
+ * These letters have standard isopsephy values (6, 90, 900) but are not
+ * part of the 24-letter Greek alphabet and therefore have no ordinal position.
+ */
+const ARCHAIC_LETTERS = new Set(['Ϛ', 'ϛ', 'Ϟ', 'ϟ', 'Ϡ', 'ϡ']);
+
+/**
  * Greek ordinal values (position in alphabet).
+ * Uses the standard 24-letter Greek alphabet (alpha to omega).
+ * Archaic letters (stigma Ϛ, koppa Ϟ, sampi Ϡ) are intentionally excluded
+ * as they are not part of the modern Greek alphabet.
  */
 const GREEK_ORDINAL: Record<string, number> = {
   'Α': 1,  'α': 1,  'Β': 2,  'β': 2,  'Γ': 3,  'γ': 3,
@@ -92,9 +102,33 @@ export function computeStandard(text: string): number {
 
 /**
  * Compute ordinal Greek value.
+ *
+ * Uses the standard 24-letter Greek alphabet (alpha to omega).
+ * Archaic letters (stigma Ϛ/ϛ, koppa Ϟ/ϟ, sampi Ϡ/ϡ) have standard isopsephy
+ * values but no ordinal position in the alphabet.
+ *
+ * @param text - The Greek text to calculate
+ * @param strict - If true (default), throws an error when archaic letters are encountered.
+ *                 If false, silently skips archaic letters (treats them as 0).
+ * @throws {Error} When archaic letters are detected and strict mode is enabled
  */
-export function computeOrdinal(text: string): number {
+export function computeOrdinal(text: string, strict: boolean = true): number {
   const letters = extractGreekLetters(text);
+
+  // Check for archaic letters in strict mode
+  if (strict) {
+    const archaic = letters.split('').filter(char => ARCHAIC_LETTERS.has(char));
+    if (archaic.length > 0) {
+      const archaicList = [...new Set(archaic)].join(', ');
+      throw new Error(
+        `Cannot calculate ordinal value: text contains archaic Greek letters (${archaicList}). ` +
+        `Archaic letters (stigma Ϛ, koppa Ϟ, sampi Ϡ) have standard isopsephy values (6, 90, 900) ` +
+        `but no ordinal position in the 24-letter Greek alphabet. ` +
+        `Use computeStandard() for isopsephy or pass strict=false to skip archaic letters.`
+      );
+    }
+  }
+
   return letters.split('').reduce((sum, char) => sum + (GREEK_ORDINAL[char] || 0), 0);
 }
 

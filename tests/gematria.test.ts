@@ -7,6 +7,7 @@ import {
   compute,
   computeHebrew,
   computeGreek,
+  computeGreekStandard,
   computeEnglish,
   detectLanguage,
   isHebrew,
@@ -71,15 +72,33 @@ describe('gematria', () => {
       expect(result.ordinal).toBe(6); // 1 + 2 + 3
     });
 
-    it('calculates reduced gematria', () => {
-      const result = computeHebrew('י'); // yod = 10
-      expect(result.reduced).toBe(1); // 1+0 = 1
+    it('calculates reduced gematria (Mispar Katan)', () => {
+      // Single letter: yod = 10 → 1+0 = 1
+      expect(computeHebrew('י').reduced).toBe(1);
+
+      // Multi-letter: בראשית
+      // ב(2) + ר(200→2) + א(1) + ש(300→3) + י(10→1) + ת(400→4) = 13
+      expect(computeHebrew('בראשית').reduced).toBe(13);
+
+      // אלהים: א(1) + ל(30→3) + ה(5) + י(10→1) + ם(40→4) = 14
+      expect(computeHebrew('אלהים').reduced).toBe(14);
     });
 
-    it('handles final letters correctly', () => {
+    it('handles final letters correctly in standard', () => {
       // Final mem (ם) should have same value as regular mem (מ) = 40
       const result1 = computeHebrew('מם');
       expect(result1.standard).toBe(80); // 40 + 40
+    });
+
+    it('handles final letters correctly in ordinal', () => {
+      // Final letters should have same ordinal value as their base form
+      // מ = 13, ם = 13 (not 24)
+      const result = computeHebrew('מם');
+      expect(result.ordinal).toBe(26); // 13 + 13
+
+      // כ = 11, ך = 11 (not 23)
+      const kaf = computeHebrew('כך');
+      expect(kaf.ordinal).toBe(22); // 11 + 11
     });
 
     it('ignores vowel points', () => {
@@ -134,6 +153,32 @@ describe('gematria', () => {
       expect(computeGreek('α').ordinal).toBe(1);   // alpha = 1st
       expect(computeGreek('β').ordinal).toBe(2);   // beta = 2nd
       expect(computeGreek('ω').ordinal).toBe(24);  // omega = 24th
+    });
+
+    it('calculates reduced gematria (digital root of total)', () => {
+      // λογος = 373 → 3+7+3 = 13 → 1+3 = 4
+      expect(computeGreek('λογος').reduced).toBe(4);
+
+      // θεος = 284 → 2+8+4 = 14 → 1+4 = 5
+      expect(computeGreek('θεος').reduced).toBe(5);
+
+      // ιησους = 888 → 8+8+8 = 24 → 2+4 = 6
+      expect(computeGreek('ιησους').reduced).toBe(6);
+    });
+
+    it('handles archaic letters in standard isopsephy', () => {
+      // Archaic letters have standard values (use computeGreekStandard directly
+      // since computeGreek also calls ordinal which throws for archaic letters)
+      expect(computeGreekStandard('Ϛ')).toBe(6);   // stigma
+      expect(computeGreekStandard('Ϟ')).toBe(90);  // koppa
+      expect(computeGreekStandard('Ϡ')).toBe(900); // sampi
+    });
+
+    it('throws error for archaic letters in ordinal (strict mode)', () => {
+      // Archaic letters have no ordinal position in the 24-letter alphabet
+      expect(() => computeGreek('Ϛ')).toThrow(/archaic/i);
+      expect(() => computeGreek('Ϟ')).toThrow(/archaic/i);
+      expect(() => computeGreek('Ϡ')).toThrow(/archaic/i);
     });
   });
 

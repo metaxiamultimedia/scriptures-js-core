@@ -9,7 +9,7 @@ import { computeGreek, isGreek, computeStandard as computeGreekStandard, compute
 import { computeEnglish, computeOrdinal as computeEnglishOrdinal } from './english.js';
 
 export { computeHebrew, isHebrew, extractHebrewLetters, computeStandard as computeHebrewStandard } from './hebrew.js';
-export { computeGreek, isGreek, removeDiacritics, extractGreekLetters } from './greek.js';
+export { computeGreek, isGreek, removeDiacritics, extractGreekLetters, computeStandard as computeGreekStandard } from './greek.js';
 export { computeEnglish, isEnglish, extractEnglishLetters } from './english.js';
 
 /**
