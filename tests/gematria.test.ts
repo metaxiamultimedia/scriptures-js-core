@@ -116,6 +116,25 @@ describe('gematria', () => {
       const withoutDiacritics = computeGreek('αρχη');
       expect(withDiacritics.standard).toBe(withoutDiacritics.standard);
     });
+
+    it('calculates ordinal gematria using alphabet positions', () => {
+      // λογος: λ=11, ο=15, γ=3, ο=15, σ=18 → total=62
+      // Bug would give: 1+2+3+4+5 = 15 (position in word, not alphabet)
+      const result = computeGreek('λογος');
+      expect(result.ordinal).toBe(62);
+    });
+
+    it('calculates ordinal for θεος correctly', () => {
+      // θεος: θ=8, ε=5, ο=15, σ=18 → total=46
+      const result = computeGreek('θεος');
+      expect(result.ordinal).toBe(46);
+    });
+
+    it('calculates ordinal for single letters', () => {
+      expect(computeGreek('α').ordinal).toBe(1);   // alpha = 1st
+      expect(computeGreek('β').ordinal).toBe(2);   // beta = 2nd
+      expect(computeGreek('ω').ordinal).toBe(24);  // omega = 24th
+    });
   });
 
   describe('computeEnglish', () => {
