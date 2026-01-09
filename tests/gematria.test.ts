@@ -136,6 +136,21 @@ describe('gematria', () => {
       expect(withDiacritics.standard).toBe(withoutDiacritics.standard);
     });
 
+    it('counts iota subscripts as iotas', () => {
+      // ᾳ (alpha with iota subscript) should count as αι (alpha + iota)
+      // α = 1, ι = 10, so ᾳ should equal 11
+      const withSubscript = computeGreek('ᾳ');
+      const withAdscript = computeGreek('αι');
+      expect(withSubscript.standard).toBe(withAdscript.standard);
+      expect(withSubscript.standard).toBe(11); // α(1) + ι(10)
+
+      // ῃ (eta with iota subscript) = ηι = 8 + 10 = 18
+      expect(computeGreek('ῃ').standard).toBe(18);
+
+      // ῳ (omega with iota subscript) = ωι = 800 + 10 = 810
+      expect(computeGreek('ῳ').standard).toBe(810);
+    });
+
     it('calculates ordinal gematria using alphabet positions', () => {
       // λογος: λ=11, ο=15, γ=3, ο=15, σ=18 → total=62
       // Bug would give: 1+2+3+4+5 = 15 (position in word, not alphabet)

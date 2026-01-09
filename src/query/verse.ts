@@ -4,7 +4,7 @@
 
 import type { Verse, VerseData, Word, LexiconEntry, Morphology } from '../models/types.js';
 import { getSource, listEditions as listRegisteredEditions } from '../registry.js';
-import { EditionNotFoundError, BookNotFoundError, VerseNotFoundError } from '../errors.js';
+import { EditionNotFoundError, VerseNotFoundError } from '../errors.js';
 
 /**
  * Options for verse retrieval.

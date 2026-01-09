@@ -64,10 +64,23 @@ export function isGreek(text: string): boolean {
 }
 
 /**
+ * Convert iota subscripts to iota adscripts.
+ * In ancient Greek, iota subscript (ᾳ, ῃ, ῳ) was written as iota adscript (αι, ηι, ωι).
+ * For gematria, the iota should be counted as a full letter with value 10.
+ */
+function convertIotaSubscriptToAdscript(text: string): string {
+  // U+0345 (COMBINING GREEK YPOGEGRAMMENI) is the iota subscript combining character
+  // Convert to full iota letter (U+03B9)
+  return text.normalize('NFD').replace(/\u0345/g, 'ι');
+}
+
+/**
  * Remove diacritical marks from Greek text.
+ * Iota subscripts are first converted to adscripts so they count for gematria.
  */
 export function removeDiacritics(text: string): string {
-  return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const expanded = convertIotaSubscriptToAdscript(text);
+  return expanded.replace(/[\u0300-\u036f]/g, '');
 }
 
 /**

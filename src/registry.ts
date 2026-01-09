@@ -4,7 +4,7 @@
  * Data packages register themselves by importing this module and calling registerSource().
  */
 
-import type { EditionMetadata, Verse, VerseData } from './models/types.js';
+import type { EditionMetadata, VerseData } from './models/types.js';
 
 /**
  * Function type for loading a verse.
