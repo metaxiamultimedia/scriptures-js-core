@@ -217,6 +217,8 @@ export interface EditionMetadata {
   license: string;
   source?: string;
   urls?: string[];
+  /** Year of publication or translation */
+  year?: number;
 }
 
 /**
