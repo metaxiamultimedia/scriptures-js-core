@@ -37,19 +37,17 @@ export {
   GematriaError,
 } from './errors.js';
 
-// Gematria
-export * as gematria from './gematria/index.js';
-export {
-  compute as computeGematria,
-  computeValue as computeGematriaValue,
-  computeHebrew,
-  computeGreek,
-  computeEnglish,
-  detectLanguage,
-  isHebrew,
-  isGreek,
-  listMethods as listGematriaMethods,
-} from './gematria/index.js';
+// Hebrew (gematria + temurah)
+export * as hebrew from './hebrew/index.js';
+
+// Greek (isopsephy)
+export * as greek from './greek/index.js';
+
+// Direct computation exports for convenience
+export { computeHebrew, isHebrew } from './gematria/hebrew.js';
+export { computeGreek, isGreek } from './gematria/greek.js';
+export { computeEnglish, isEnglish } from './gematria/english.js';
+export { detectLanguage, computeValue } from './gematria/index.js';
 
 // Morphology
 export * as morphology from './morphology/index.js';

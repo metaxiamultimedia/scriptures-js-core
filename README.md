@@ -2,11 +2,13 @@
 
 The foundational engine for the Scriptures JS ecosystem. Provides a unified API for querying scripture texts, computing gematria, parsing morphology, and working with lexicon data.
 
-## v2.0.0 Breaking Changes
+## v3.0.0 Breaking Changes
 
-- **Gematria is now computed on-demand**: Gematria values are no longer pre-stored in data files. Instead, `verse.gematria` and `word.gematria` are computed lazily when accessed. This reduces data file sizes and allows gematria methods to be extended without re-importing data.
-- **Hebrew cantillation marks preserved**: The OHB source now preserves cantillation marks (טעמים) in the text. Gematria computation automatically ignores non-letter characters.
-- **New `gematriaWithColophons` property**: Use `verse.gematriaWithColophons` to compute gematria including colophon words (subscriptions at the end of epistles). The standard `verse.gematria` excludes colophon words.
+- **New `hebrew` namespace**: Gematria and temurah (letter ciphers) are now under `hebrew.gematria.*` and `hebrew.temurah.*`
+- **9 gematria systems**: All derived from primary historical sources with full citations
+- **2 temurah ciphers**: Atbash and Albam with source documentation
+- **Musafi modifier**: Phrase-level modifier as documented in JE (1906)
+- **No more shorthand names**: Use proper Hebrew names (`misparHechrachi` not `standard`)
 
 ## Installation
 
@@ -25,21 +27,24 @@ npm install @metaxia/scriptures-source-openscriptures-ohb  # Hebrew OT
 
 ```typescript
 // Import a data source to auto-register it
-import '@metaxia/scriptures-source-byztxt-tr';
+import '@metaxia/scriptures-source-openscriptures-ohb';
 
-import { getVerse, computeGematria, listEditions } from '@metaxia/scriptures-core';
+import { hebrew, getVerse, listEditions } from '@metaxia/scriptures-core';
 
 // List available editions
-console.log(listEditions()); // ['byztxt-TR']
+console.log(listEditions()); // ['openscriptures-OHB']
 
 // Get a verse
-const verse = await getVerse('John', 1, 1, { edition: 'byztxt-TR' });
+const verse = await getVerse('Genesis', 1, 1, { edition: 'openscriptures-OHB' });
 console.log(verse.text);
-// "εν αρχη ην ο λογος και ο λογος ην προς τον θεον και θεος ην ο λογος"
 
-// Compute gematria
-const values = computeGematria('λογος');
-console.log(values.standard); // 373
+// Compute gematria using Hebrew system names
+console.log(hebrew.gematria.misparHechrachi('בראשית')); // 913
+console.log(hebrew.gematria.misparKatan('בראשית'));     // 22
+console.log(hebrew.gematria.misparGadol('בראשית'));     // 913
+
+// Apply temurah (letter cipher)
+console.log(hebrew.temurah.atbash('בבל')); // 'ששכ' (Babel -> Sheshakh)
 ```
 
 ## API Reference
@@ -111,59 +116,73 @@ const books = listBooks('byztxt-TR');
 // ['Matthew', 'Mark', 'Luke', 'John', ...]
 ```
 
-### Gematria
+### Hebrew Gematria
 
-Compute numeric values from Hebrew, Greek, or English text.
-
-#### `computeGematria(text, options?)`
-
-Compute all gematria values for text. Language is auto-detected.
+Nine letter-value systems derived from primary historical sources.
 
 ```typescript
-import { computeGematria } from '@metaxia/scriptures-core';
+import { hebrew } from '@metaxia/scriptures-core';
 
-// Hebrew
-const hebrew = computeGematria('בראשית');
-// { standard: 913, ordinal: 76, reduced: 22 }
+// Basic usage
+hebrew.gematria.misparHechrachi('שלום')  // 376 - standard value
+hebrew.gematria.misparGadol('שלום')      // 376 - major value (finals as 500-900)
+hebrew.gematria.misparKatan('שלום')      // 16  - reduced value (1-9)
 
-// Greek
-const greek = computeGematria('λογος');
-// { standard: 373, ordinal: 67, reduced: 4 }
+// With musafi modifier (adds letter or word count)
+hebrew.gematria.misparHechrachi('שלום', { musafi: 'letters' })  // 380 (376 + 4)
+hebrew.gematria.misparHechrachi('שלום עולם', { musafi: 'words' }) // 782 (780 + 2)
+
+// Compute all systems at once
+hebrew.gematria.computeAll('שלום')
+// { misparHechrachi: 376, misparGadol: 376, misparKatan: 16, ... }
+
+// Get system metadata with source citation
+hebrew.gematria.getSystem('misparHechrachi')
+// { name: 'misparHechrachi', hebrewName: 'מספר הכרחי', source: { ... }, ... }
 ```
 
-#### `computeGematriaValue(text, method?, language?)`
+#### Available Systems
 
-Compute a single value using a specific method.
+| Method | Hebrew Name | Source | Description |
+|--------|-------------|--------|-------------|
+| `misparHechrachi` | מספר הכרחי | JE §E.1 | Standard: א-ט=1-9, י-צ=10-90, ק-ת=100-400 |
+| `misparGadol` | מספר גדול | JE §E.11 | Major: finals as 500-900 |
+| `misparKatan` | מספר קטן | JE §E.2 | Reduced: all values 1-9 |
+| `misparKolel` | מספר כולל | JE §E.3 | Inclusive: cumulative sums |
+| `misparPerati` | מספר פרטי | JE §E.6 | Squared: each letter² |
+| `misparMeshulash` | מספר משולש | JE §E.15 | Cubed: each letter³ |
+| `misparChitzon` | מספר חיצוני | JE §E.10 | External: every letter = 1 |
+| `misparSiduri` | מספר סידורי | Pardes | Ordinal: position 1-22 |
+| `misparHakadmi` | מספר הקדמי | Pardes | Prior: triangular numbers |
+
+### Hebrew Temurah (Letter Ciphers)
+
+Two letter substitution ciphers. These transform letters, not compute values.
 
 ```typescript
-import { computeGematriaValue } from '@metaxia/scriptures-core';
+import { hebrew } from '@metaxia/scriptures-core';
 
-const standard = computeGematriaValue('בראשית', 'standard'); // 913
-const ordinal = computeGematriaValue('בראשית', 'ordinal');   // 76
+// Atbash - mirror positions (first↔last)
+hebrew.temurah.atbash('בבל')     // 'ששכ' (Babel -> Sheshakh, Jer 25:26)
+hebrew.temurah.atbash('כשדים')   // 'לבקמי' (Kasdim -> Lev Kamai, Jer 51:1)
+
+// Albam - half-alphabet swap (position n ↔ n+11)
+hebrew.temurah.albam('אלהים')    // 'למהיב'
+
+// Both ciphers are symmetric (applying twice returns original)
+hebrew.temurah.atbash(hebrew.temurah.atbash('שלום')) // 'שלום'
+
+// Combine cipher with gematria
+const transformed = hebrew.temurah.atbash('בבל');
+hebrew.gematria.misparHechrachi(transformed)  // 620
 ```
 
-#### Available Methods
+#### Available Ciphers
 
-| Language | Method | Slug | Description |
-|----------|--------|------|-------------|
-| Hebrew | Standard | `mispar_hechrachi` | Traditional letter values |
-| Hebrew | Ordinal | `mispar_siduri` | Position-based (1-22) |
-| Hebrew | Reduced | `mispar_katan` | Single digit reduction |
-| Greek | Standard | `isopsephy` | Traditional isopsephy |
-| Greek | Ordinal | `isopsephy_ordinal` | Position-based (1-24) |
-| Greek | Reduced | `isopsephy_reduced` | Digital root |
-| English | Ordinal | `english_ordinal` | A=1, B=2, ... Z=26 |
-
-#### `listGematriaMethods(language?)`
-
-List available gematria methods.
-
-```typescript
-import { listGematriaMethods } from '@metaxia/scriptures-core';
-
-const methods = listGematriaMethods('hebrew');
-// [{ slug: 'mispar_hechrachi', name: 'Mispar Hechrachi', ... }, ...]
-```
+| Cipher | Hebrew | Source | Description |
+|--------|--------|--------|-------------|
+| `atbash` | אתב״ש | JE + Pardes | Mirror positions: א↔ת, ב↔ש, etc. |
+| `albam` | אלב״ם | Pardes 30:5 | Half swap: א↔ל, ב↔מ, etc. |
 
 ### Morphology
 
@@ -301,6 +320,52 @@ const mySource: ScriptureSource = {
 
 registerSource(mySource);
 ```
+
+## Sources and Citations
+
+The Hebrew gematria and temurah implementations in this library are derived exclusively from primary historical sources in the public domain.
+
+### Primary Sources
+
+#### Jewish Encyclopedia (1906)
+
+The foundational source for gematria system definitions.
+
+> Schechter, Solomon, and Caspar Levias. "Gematria." *The Jewish Encyclopedia: A Descriptive Record of the History, Religion, Literature, and Customs of the Jewish People from the Earliest Times to the Present Day*, edited by Isidore Singer, vol. 5, Funk and Wagnalls, 1906, pp. 589–592.
+
+- **Online**: [jewishencyclopedia.com/articles/6564-gematria](https://www.jewishencyclopedia.com/articles/6564-gematria)
+- **Archive.org**: [archive.org/details/the-jewish-encyclopedia-vol.-5](https://archive.org/details/the-jewish-encyclopedia-vol.-5) (pages 589–592)
+- **License**: Public Domain (published 1906, copyright expired)
+
+Systems derived from JE (1906):
+- §E.1: Mispar Hechrachi (Normal Value)
+- §E.2: Mispar Katan (Cyclical/Minor Value)
+- §E.3: Mispar Kolel (Inclusive Value)
+- §E.4: Musafi modifier (Additory Value)
+- §E.6: Mispar Perati (Square Value of Letter)
+- §E.10: Mispar Chitzon (External Value)
+- §E.11: Mispar Gadol (Major Value)
+- §E.15: Mispar Meshulash (Cube Value of Letter)
+- §II.2: Atbash cipher
+
+#### Pardes Rimonim (1548)
+
+Historical primary source for additional systems.
+
+> Cordovero, Moses ben Jacob. *Pardes Rimonim* [פרדס רמונים], Gate 30 ("Sha'ar ha-Gematria"), Chapters 5–8. Safed, 1548.
+
+- **Online**: [sefaria.org/Pardes_Rimmonim.30](https://www.sefaria.org/Pardes_Rimmonim.30)
+- **License**: Public Domain (published 1548)
+
+Systems derived from Pardes Rimonim:
+- Gate 30, Ch. 8: Mispar HaKadmi (Prior Value)
+- Gate 30, Ch. 8: Mispar Siduri (Ordinal Value, implicit)
+- Gate 30, Ch. 5: Albam cipher
+- Gate 30, Ch. 5–6: Atbash cipher
+
+### Derivation Notes
+
+All letter-value tables are computed from explicit statements in the sources. Where a source describes a method without enumerating all values (e.g., JE §E.11 says "finals count as hundreds" without listing 500–900), the values are derived by applying the stated method to the standard Hebrew alphabet. Such derivations are documented in the source code.
 
 ## License
 
