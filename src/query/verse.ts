@@ -2,9 +2,19 @@
  * Verse query functions.
  */
 
-import type { Verse, VerseData, Word, LexiconEntry, Morphology } from '../models/types.js';
+import type { Verse, VerseData, Word, LexiconEntry, Morphology, GematriaValues } from '../models/types.js';
 import { getSource, listEditions as listRegisteredEditions } from '../registry.js';
 import { EditionNotFoundError, VerseNotFoundError } from '../errors.js';
+import {
+  createGematriaProxy,
+  createVerseGematriaProxy,
+  createVerseGematriaWithColophonsProxy,
+  createGetGematriaMethod,
+  normalizeLanguage,
+  isHebrew,
+  isGreek,
+  type GematriaLanguage,
+} from '../gematria/index.js';
 
 /**
  * Options for verse retrieval.
@@ -46,15 +56,21 @@ function parseStrongs(value: string | string[] | undefined, lang?: string): stri
 /**
  * Check if a word entry is a textual critical note rather than actual scripture.
  * These notes from the Open Scriptures Hebrew Bible compare manuscript variants
- * and have: no lemma, no morphology, and 0 gematria value.
+ * and have: lemma explicitly null, morph explicitly null, and no Hebrew/Greek letters.
+ *
+ * Note: This is different from words that simply don't have lemma/morph fields
+ * (like KJV English words which are valid scripture).
  */
 function isTextualCriticalNote(w: Word): boolean {
-  // Must have no lemma and no morphology
-  if (w.lemma || w.morph) return false;
+  // Check if lemma and morph are explicitly null (not just missing)
+  // Words without these fields (like KJV) are not critical notes
+  const hasExplicitNullLemma = 'lemma' in w && w.lemma === null;
+  const hasExplicitNullMorph = 'morph' in w && w.morph === null;
 
-  // Must have 0 standard gematria (non-Hebrew/Greek text)
-  const gematria = w.gematria;
-  if (!gematria || gematria.standard !== 0) return false;
+  if (!hasExplicitNullLemma || !hasExplicitNullMorph) return false;
+
+  // Must contain no Hebrew or Greek letters (annotations are in other scripts)
+  if (isHebrew(w.text) || isGreek(w.text)) return false;
 
   return true;
 }
@@ -69,6 +85,7 @@ function dataToVerse(
   number: number,
   language?: string
 ): Verse {
+  const normalizedLang = normalizeLanguage(language);
   const words: Word[] = [];
 
   for (const w of data.words ?? []) {
@@ -111,7 +128,9 @@ function dataToVerse(
       morphology,
       metadata: w.metadata,
       strongs: strongs.length > 0 ? strongs : undefined,
-      gematria: w.gematria,
+      gematria: createGematriaProxy(w.text, normalizedLang),
+      isColophon: w.isColophon || w.metadata?.colophon,
+      variant: w.variant,
     });
   }
 
@@ -122,7 +141,9 @@ function dataToVerse(
     number,
     text: data.text,
     words,
-    gematria: data.gematria,
+    gematria: createVerseGematriaProxy(words, normalizedLang),
+    gematriaWithColophons: data.text ? createVerseGematriaWithColophonsProxy(data.text, normalizedLang) : undefined,
+    getGematria: createGetGematriaMethod(words, normalizedLang),
     metadata: data.metadata,
   };
 }

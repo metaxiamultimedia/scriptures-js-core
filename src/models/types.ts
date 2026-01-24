@@ -81,6 +81,24 @@ export interface GematriaValues {
 }
 
 /**
+ * Options for verse gematria calculation.
+ */
+export interface VerseGematriaOptions {
+  /**
+   * Which variant to use for Qere/Ketiv words.
+   * - 'qere': use the traditional reading (default)
+   * - 'ketiv': use the written consonantal text
+   */
+  variant?: 'qere' | 'ketiv';
+
+  /**
+   * Whether to include colophon words in the calculation.
+   * Default: false
+   */
+  includeColophons?: boolean;
+}
+
+/**
  * Word metadata including colophon information.
  */
 export interface WordMetadata {
@@ -104,6 +122,20 @@ export interface Word {
   lemma?: string | string[];
   morph?: string;
   strong?: string;
+
+  /**
+   * True if this word is part of a colophon (subscription at end of epistles).
+   * Colophon words are excluded from default gematria calculations.
+   */
+  isColophon?: boolean;
+
+  /**
+   * For Qere/Ketiv variants, indicates which reading this word represents.
+   * - 'ketiv': the written consonantal text
+   * - 'qere': the traditional vocalized reading
+   * Mutually exclusive. Most words have no variant (undefined).
+   */
+  variant?: 'ketiv' | 'qere';
 }
 
 /**
@@ -126,7 +158,16 @@ export interface Verse {
   number: number;
   text?: string;
   words: Word[];
+  /** Gematria computed from words, excluding colophons and using Qere */
   gematria?: GematriaValues;
+  /** Gematria computed from full verse text, including colophons */
+  gematriaWithColophons?: GematriaValues;
+  /**
+   * Get gematria with custom options.
+   * @param options - Options for variant selection and colophon inclusion
+   * @returns GematriaValues proxy that computes on property access
+   */
+  getGematria?: (options: VerseGematriaOptions) => GematriaValues;
   metadata?: VerseMetadata;
 }
 

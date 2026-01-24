@@ -12,7 +12,12 @@ import {
   detectLanguage,
   isHebrew,
   isGreek,
+  createGematriaProxy,
+  createVerseGematriaProxy,
+  createVerseGematriaWithColophonsProxy,
+  normalizeLanguage,
 } from '../src/gematria/index.js';
+import type { Word } from '../src/models/types.js';
 
 describe('gematria', () => {
   describe('detectLanguage', () => {
@@ -239,6 +244,110 @@ describe('gematria', () => {
     it('respects language option', () => {
       const result = compute('abc', { language: 'english' });
       expect(result.ordinal).toBe(6);
+    });
+  });
+
+  describe('gematria proxy', () => {
+    describe('createGematriaProxy', () => {
+      it('computes Hebrew gematria on property access', () => {
+        const proxy = createGematriaProxy('בראשית', 'hebrew');
+        expect(proxy.standard).toBe(913);
+        expect(proxy.ordinal).toBe(76); // ב(2)+ר(20)+א(1)+ש(21)+י(10)+ת(22)
+        expect(proxy.reduced).toBe(13);
+      });
+
+      it('computes Greek gematria on property access', () => {
+        const proxy = createGematriaProxy('λογος', 'greek');
+        expect(proxy.standard).toBe(373);
+        expect(proxy.ordinal).toBe(62);
+        expect(proxy.reduced).toBe(4);
+      });
+
+      it('computes English gematria on property access', () => {
+        // "God": G=7, O=15, D=4 → ordinal = 26
+        const proxy = createGematriaProxy('God', 'english');
+        expect(proxy.ordinal).toBe(26);
+        expect(proxy.standard).toBe(26);
+        expect(proxy.reduced).toBe(8);
+      });
+
+      it('auto-detects language when set to auto', () => {
+        const hebrewProxy = createGematriaProxy('בראשית', 'auto');
+        expect(hebrewProxy.standard).toBe(913);
+
+        const greekProxy = createGematriaProxy('λογος', 'auto');
+        expect(greekProxy.standard).toBe(373);
+      });
+
+      it('returns 0 for empty text', () => {
+        const proxy = createGematriaProxy('', 'english');
+        expect(proxy.standard).toBe(0);
+      });
+    });
+
+    describe('createVerseGematriaProxy', () => {
+      it('aggregates gematria from words', () => {
+        const words: Word[] = [
+          { position: 1, text: 'In', gematria: createGematriaProxy('In', 'english') },
+          { position: 2, text: 'the', gematria: createGematriaProxy('the', 'english') },
+          { position: 3, text: 'beginning', gematria: createGematriaProxy('beginning', 'english') },
+        ];
+
+        const verseGematria = createVerseGematriaProxy(words, 'english');
+
+        // In(23) + the(33) + beginning(81) = 137
+        expect(verseGematria.ordinal).toBe(137);
+      });
+
+      it('excludes colophon words from aggregation', () => {
+        const words: Word[] = [
+          { position: 1, text: 'Amen', gematria: createGematriaProxy('Amen', 'english') },
+          { position: 2, text: 'Written', metadata: { colophon: true }, gematria: createGematriaProxy('Written', 'english') },
+          { position: 3, text: 'from', metadata: { colophon: true }, gematria: createGematriaProxy('from', 'english') },
+        ];
+
+        const verseGematria = createVerseGematriaProxy(words, 'english');
+
+        // Only "Amen": A=1, M=13, E=5, N=14 = 33
+        expect(verseGematria.ordinal).toBe(33);
+      });
+    });
+
+    describe('createVerseGematriaWithColophonsProxy', () => {
+      it('computes gematria for full verse text including colophons', () => {
+        // Full verse text as a single string
+        const verseText = 'Amen Written from';
+        const fullGematria = createVerseGematriaWithColophonsProxy(verseText, 'english');
+
+        // Amen(33) + Written(100) + from(52) = 185
+        // Actually: A(1)+m(13)+e(5)+n(14)=33, W(23)+r(18)+i(9)+t(20)+t(20)+e(5)+n(14)=109, f(6)+r(18)+o(15)+m(13)=52
+        // 33 + 109 + 52 = 194
+        expect(fullGematria.ordinal).toBe(194);
+      });
+    });
+
+    describe('normalizeLanguage', () => {
+      it('normalizes Hebrew variations', () => {
+        expect(normalizeLanguage('Hebrew')).toBe('hebrew');
+        expect(normalizeLanguage('HEBREW')).toBe('hebrew');
+        expect(normalizeLanguage('Ancient Hebrew')).toBe('hebrew');
+      });
+
+      it('normalizes Greek variations', () => {
+        expect(normalizeLanguage('Greek')).toBe('greek');
+        expect(normalizeLanguage('GREEK')).toBe('greek');
+        expect(normalizeLanguage('Ancient Greek')).toBe('greek');
+      });
+
+      it('normalizes English variations', () => {
+        expect(normalizeLanguage('English')).toBe('english');
+        expect(normalizeLanguage('ENGLISH')).toBe('english');
+      });
+
+      it('returns auto for unknown or undefined', () => {
+        expect(normalizeLanguage(undefined)).toBe('auto');
+        expect(normalizeLanguage('Latin')).toBe('auto');
+      });
     });
   });
 });

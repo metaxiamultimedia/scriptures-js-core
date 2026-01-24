@@ -2,6 +2,12 @@
 
 The foundational engine for the Scriptures JS ecosystem. Provides a unified API for querying scripture texts, computing gematria, parsing morphology, and working with lexicon data.
 
+## v2.0.0 Breaking Changes
+
+- **Gematria is now computed on-demand**: Gematria values are no longer pre-stored in data files. Instead, `verse.gematria` and `word.gematria` are computed lazily when accessed. This reduces data file sizes and allows gematria methods to be extended without re-importing data.
+- **Hebrew cantillation marks preserved**: The OHB source now preserves cantillation marks (טעמים) in the text. Gematria computation automatically ignores non-letter characters.
+- **New `gematriaWithColophons` property**: Use `verse.gematriaWithColophons` to compute gematria including colophon words (subscriptions at the end of epistles). The standard `verse.gematria` excludes colophon words.
+
 ## Installation
 
 ```bash
@@ -55,9 +61,10 @@ const verse = await getVerse('Genesis', 1, 1, { edition: 'openscriptures-OHB' })
 //   book: 'Genesis',
 //   chapter: 1,
 //   number: 1,
-//   text: 'בְּרֵאשִׁית בָּרָא אֱלֹהִים ...',
+//   text: 'בְּרֵאשִׁ֖ית בָּרָ֣א אֱלֹהִ֑ים ...',  // includes cantillation marks
 //   words: [...],
-//   gematria: { standard: 2701, ordinal: 298 }
+//   gematria: { ... },      // computed on-demand, excludes colophon words
+//   gematriaWithColophons: { ... },  // computed on-demand, includes all words
 // }
 ```
 
@@ -244,9 +251,10 @@ interface Verse {
   book: string;
   chapter: number;
   number: number;
-  text: string;         // Full verse text
+  text: string;         // Full verse text (with diacritics/cantillation)
   words: Word[];        // Individual words with annotations
-  gematria?: GematriaValues;
+  gematria?: GematriaValues;      // Computed on-demand, excludes colophon words
+  gematriaWithColophons?: GematriaValues;  // Computed on-demand, includes all words
   metadata?: Record<string, unknown>;
 }
 ```
@@ -260,7 +268,7 @@ interface Word {
   lexiconEntry?: LexiconEntry;
   morphology?: Morphology;
   strongs?: string[];   // e.g., ['H7225']
-  gematria?: GematriaValues;
+  gematria?: GematriaValues;  // Computed on-demand
   metadata?: Record<string, unknown>;
 }
 ```

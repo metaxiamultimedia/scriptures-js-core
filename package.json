@@ -1,6 +1,6 @@
 {
   "name": "@metaxia/scriptures-core",
-  "version": "0.1.2",
+  "version": "2.0.0",
   "description": "The foundational engine for the Metaxia Scriptures ecosystem. Core API, registry system, gematria, morphology, and analysis tools.",
   "type": "module",
   "main": "./dist/index.js",
