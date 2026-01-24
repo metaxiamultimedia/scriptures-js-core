@@ -11,6 +11,8 @@ import { computeEnglish, computeOrdinal as computeEnglishOrdinal } from './engli
 export { computeHebrew, isHebrew, extractHebrewLetters, computeStandard as computeHebrewStandard } from './hebrew.js';
 export { computeGreek, isGreek, removeDiacritics, extractGreekLetters, computeStandard as computeGreekStandard } from './greek.js';
 export { computeEnglish, isEnglish, extractEnglishLetters } from './english.js';
+export { createGematriaProxy, createVerseGematriaProxy, createVerseGematriaWithColophonsProxy, createGetGematriaMethod, normalizeLanguage } from './proxy.js';
+export type { VerseGematriaOptions } from './proxy.js';
 
 /**
  * Supported languages for gematria calculations.
