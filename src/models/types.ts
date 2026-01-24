@@ -219,6 +219,8 @@ export interface EditionMetadata {
   urls?: string[];
   /** Year of publication or translation */
   year?: number;
+  /** Edition name (e.g., "Oxford", "Cambridge") */
+  edition?: string;
 }
 
 /**
