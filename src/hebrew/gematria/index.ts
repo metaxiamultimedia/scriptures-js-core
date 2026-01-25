@@ -1,44 +1,40 @@
 /**
  * Hebrew Gematria
  *
- * Three letter-value systems for computing numeric values of Hebrew text.
- *
- * SOURCES (Chicago format, all public domain):
- *
- * Cordovero, Moses ben Jacob. Pardes Rimonim [Garden of Pomegranates]. Safed, 1548.
- *    Gate 30, Chapter 8: Methods of gematria including Mispar Hechrachi, Siduri, Katan.
- *    https://www.sefaria.org/Pardes_Rimmonim.30.8
- *
- * Singer, Isidore, ed. The Jewish Encyclopedia. New York: Funk and Wagnalls, 1906.
- *    s.v. "Gematria," by Caspar Levias.
- *    https://www.jewishencyclopedia.com/articles/6643-gematria
- *
- * VERIFIED EXAMPLES:
- *    - בראשית (Bereshit): ב=2 + ר=200 + א=1 + ש=300 + י=10 + ת=400 = 913 ✓
- *    - אלהים (Elohim): א=1 + ל=30 + ה=5 + י=10 + ם=40 = 86 ✓
- *    - שלום (Shalom): ש=300 + ל=30 + ו=6 + ם=40 = 376 ✓
+ * Nine letter-value systems derived from primary historical sources:
+ * - Jewish Encyclopedia (1903), "Gematria" article
+ * - Pardes Rimonim (1548), Gate 30, Chapter 8
  *
  * @example
  * ```typescript
  * import { hebrew } from '@metaxia/scriptures-core';
  *
- * hebrew.gematria.misparHechrachi('שלום')  // 376 (standard)
- * hebrew.gematria.misparSiduri('שלום')     // 52  (ordinal)
- * hebrew.gematria.misparKatan('שלום')      // 16  (reduced)
+ * // Using Hebrew system names (preferred)
+ * hebrew.gematria.misparHechrachi('שלום')  // 376
+ * hebrew.gematria.misparGadol('שלום')      // 376 (no finals in this word)
+ * hebrew.gematria.misparKatan('שלום')      // 16
+ *
+ * // With musafi modifier
+ * hebrew.gematria.misparHechrachi('שלום', { musafi: 'letters' })  // 380
  * ```
  */
 
-import type { GematriaResult, LetterValueTable } from './types.js';
+import type { GematriaOptions, GematriaResult, LetterValueTable } from './types.js';
 import {
   MISPAR_HECHRACHI,
-  MISPAR_SIDURI,
+  MISPAR_GADOL,
   MISPAR_KATAN,
+  MISPAR_KOLEL,
+  MISPAR_PERATI,
+  MISPAR_MESHULASH,
+  MISPAR_CHITZON,
+  MISPAR_SIDURI,
+  MISPAR_HAKADMI,
   SYSTEMS,
-  type SystemName,
 } from './systems.js';
 
-export type { GematriaResult, LetterValueTable } from './types.js';
-export { SYSTEMS, type SystemName } from './systems.js';
+export type { GematriaOptions, GematriaResult, GematriaSystem, LetterValueTable, SourceCitation } from './types.js';
+export { SYSTEMS } from './systems.js';
 
 /**
  * Hebrew letter Unicode range (excluding vowels/cantillation).
@@ -56,6 +52,7 @@ export function extractLetters(text: string): string {
  * Count Hebrew words in text.
  */
 export function countWords(text: string): number {
+  // Split on whitespace and filter to words containing Hebrew letters
   return text.split(/\s+/).filter(word => HEBREW_LETTER_REGEX.test(word)).length;
 }
 
@@ -65,7 +62,8 @@ export function countWords(text: string): number {
 function computeWithTable(
   text: string,
   table: LetterValueTable,
-  systemName: string
+  systemName: string,
+  options: GematriaOptions = {}
 ): GematriaResult {
   const letters = extractLetters(text);
   const letterCount = letters.length;
@@ -76,11 +74,19 @@ function computeWithTable(
     value += table[char] ?? 0;
   }
 
+  // Apply musafi modifier (phrase-level)
+  if (options.musafi === 'words') {
+    value += wordCount;
+  } else if (options.musafi === 'letters') {
+    value += letterCount;
+  }
+
   return {
     value,
     system: systemName,
     letterCount,
     wordCount,
+    musafi: options.musafi,
   };
 }
 
@@ -91,56 +97,133 @@ function computeWithTable(
 /**
  * Mispar Hechrachi (מספר הכרחי) - Standard Value
  *
- * Traditional gematria where aleph-tet = 1-9, yod-tsadi = 10-90, qof-tav = 100-400.
+ * Source: Jewish Encyclopedia (1903), Section E.1
  */
-export function misparHechrachi(text: string): number {
-  return computeWithTable(text, MISPAR_HECHRACHI, 'misparHechrachi').value;
+export function misparHechrachi(text: string, options?: GematriaOptions): number {
+  return computeWithTable(text, MISPAR_HECHRACHI, 'misparHechrachi', options).value;
+}
+
+/**
+ * Mispar Gadol (מספר גדול) - Major Value
+ *
+ * Source: Jewish Encyclopedia (1903), Section E.11
+ */
+export function misparGadol(text: string, options?: GematriaOptions): number {
+  return computeWithTable(text, MISPAR_GADOL, 'misparGadol', options).value;
+}
+
+/**
+ * Mispar Katan (מספר קטן) - Minor/Reduced Value
+ *
+ * Source: Jewish Encyclopedia (1903), Section E.2
+ */
+export function misparKatan(text: string, options?: GematriaOptions): number {
+  return computeWithTable(text, MISPAR_KATAN, 'misparKatan', options).value;
+}
+
+/**
+ * Mispar Kolel (מספר כולל) - Inclusive Value
+ *
+ * Source: Jewish Encyclopedia (1903), Section E.3
+ */
+export function misparKolel(text: string, options?: GematriaOptions): number {
+  return computeWithTable(text, MISPAR_KOLEL, 'misparKolel', options).value;
+}
+
+/**
+ * Mispar Perati (מספר פרטי) - Square Value of Letter
+ *
+ * Source: Jewish Encyclopedia (1903), Section E.6
+ */
+export function misparPerati(text: string, options?: GematriaOptions): number {
+  return computeWithTable(text, MISPAR_PERATI, 'misparPerati', options).value;
+}
+
+/**
+ * Mispar Meshulash (מספר משולש) - Cube Value of Letter
+ *
+ * Source: Jewish Encyclopedia (1903), Section E.15
+ */
+export function misparMeshulash(text: string, options?: GematriaOptions): number {
+  return computeWithTable(text, MISPAR_MESHULASH, 'misparMeshulash', options).value;
+}
+
+/**
+ * Mispar Chitzon (מספר חיצוני) - External Value
+ *
+ * Every letter counts as 1.
+ *
+ * Source: Jewish Encyclopedia (1903), Section E.10
+ */
+export function misparChitzon(text: string, options?: GematriaOptions): number {
+  return computeWithTable(text, MISPAR_CHITZON, 'misparChitzon', options).value;
 }
 
 /**
  * Mispar Siduri (מספר סידורי) - Ordinal Value
  *
- * Sequential numbering 1-22 based on alphabetical position.
+ * Source: Pardes Rimonim (1548), Gate 30, Chapter 8 (implicit)
  */
-export function misparSiduri(text: string): number {
-  return computeWithTable(text, MISPAR_SIDURI, 'misparSiduri').value;
+export function misparSiduri(text: string, options?: GematriaOptions): number {
+  return computeWithTable(text, MISPAR_SIDURI, 'misparSiduri', options).value;
 }
 
 /**
- * Mispar Katan (מספר קטן) - Reduced Value
+ * Mispar HaKadmi (מספר הקדמי) - Prior Value (triangular numbers)
  *
- * Each letter's value reduced to a single digit (1-9).
+ * Source: Pardes Rimonim (1548), Gate 30, Chapter 8
  */
-export function misparKatan(text: string): number {
-  return computeWithTable(text, MISPAR_KATAN, 'misparKatan').value;
+export function misparHakadmi(text: string, options?: GematriaOptions): number {
+  return computeWithTable(text, MISPAR_HAKADMI, 'misparHakadmi', options).value;
 }
 
 // ============================================================================
-// Extended API
+// Extended API - Returns full result with metadata
 // ============================================================================
 
 /**
  * Compute gematria with full result metadata.
  */
-export function compute(text: string, system: SystemName): GematriaResult {
-  const table = SYSTEMS[system];
-  return computeWithTable(text, table, system);
+export function compute(
+  text: string,
+  system: keyof typeof SYSTEMS,
+  options?: GematriaOptions
+): GematriaResult {
+  const systemDef = SYSTEMS[system];
+  if (!systemDef) {
+    throw new Error(`Unknown gematria system: ${system}`);
+  }
+  return computeWithTable(text, systemDef.values, system, options);
 }
 
 /**
  * Compute all systems at once.
  */
-export function computeAll(text: string): Record<SystemName, number> {
+export function computeAll(text: string, options?: GematriaOptions): Record<string, number> {
   return {
-    misparHechrachi: misparHechrachi(text),
-    misparSiduri: misparSiduri(text),
-    misparKatan: misparKatan(text),
+    misparHechrachi: misparHechrachi(text, options),
+    misparGadol: misparGadol(text, options),
+    misparKatan: misparKatan(text, options),
+    misparKolel: misparKolel(text, options),
+    misparPerati: misparPerati(text, options),
+    misparMeshulash: misparMeshulash(text, options),
+    misparChitzon: misparChitzon(text, options),
+    misparSiduri: misparSiduri(text, options),
+    misparHakadmi: misparHakadmi(text, options),
   };
 }
 
 /**
  * List all available system names.
  */
-export function listSystems(): SystemName[] {
-  return Object.keys(SYSTEMS) as SystemName[];
+export function listSystems(): string[] {
+  return Object.keys(SYSTEMS);
 }
+
+/**
+ * Get system metadata by name.
+ */
+export function getSystem(name: string) {
+  return SYSTEMS[name];
+}
+

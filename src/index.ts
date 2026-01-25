@@ -39,6 +39,7 @@ export {
 
 // Language namespaces
 export * as hebrew from './hebrew/index.js';
+export * as greek from './greek/index.js';
 
 // Gematria
 export * as gematria from './gematria/index.js';
