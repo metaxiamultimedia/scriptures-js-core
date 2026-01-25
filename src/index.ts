@@ -37,6 +37,9 @@ export {
   GematriaError,
 } from './errors.js';
 
+// Language namespaces
+export * as hebrew from './hebrew/index.js';
+
 // Gematria
 export * as gematria from './gematria/index.js';
 export {
