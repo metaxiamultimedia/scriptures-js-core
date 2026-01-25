@@ -1,5 +1,28 @@
 /**
  * Greek gematria (isopsephy) calculations.
+ *
+ * SOURCES (Chicago format, all public domain):
+ *
+ * Gow, James. "The Greek Numerical Alphabet." The Journal of Philology 12 (1883): 278-284.
+ *    https://archive.org/details/journalphilolog12teleduof
+ *
+ * Heath, Thomas L. Diophantus of Alexandria: A Study in the History of Greek Algebra.
+ *    Cambridge: Cambridge University Press, 1910.
+ *    https://archive.org/details/diophaborr00teleduof
+ *
+ * Heath, Thomas L. A History of Greek Mathematics. 2 vols. Oxford: Clarendon Press, 1921.
+ *    https://archive.org/details/historyofgreekma01teleduof
+ *
+ * Hippolytus. Refutation of All Heresies. Translated by J. H. MacMahon. Edinburgh, 1868.
+ *    Book IV, Chapter 14: Pythagoras to Telauges (πυθμήν / digital root method).
+ *    https://archive.org/details/antenicenefathertel05robe
+ *
+ * VERIFIED EXAMPLES:
+ *    - λογος (logos): λ=30 + ο=70 + γ=3 + ο=70 + ς=200 = 373 ✓
+ *    - θεος (theos): θ=9 + ε=5 + ο=70 + ς=200 = 284 ✓
+ *    - ιησους (Iesous): ι=10 + η=8 + σ=200 + ο=70 + υ=400 + ς=200 = 888 ✓
+ *
+ * See: sources/isopsephy/SYSTEMS_BY_SOURCE.md for complete documentation
  */
 
 import type { GematriaValues } from '../models/types.js';

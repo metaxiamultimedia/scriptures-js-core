@@ -6,7 +6,16 @@ import type { GematriaValues } from '../models/types.js';
 import { GematriaError } from '../errors.js';
 import { computeHebrew, isHebrew, computeStandard as computeHebrewStandard, computeOrdinal as computeHebrewOrdinal, computeReduced as computeHebrewReduced } from './hebrew.js';
 import { computeGreek, isGreek, computeStandard as computeGreekStandard, computeOrdinal as computeGreekOrdinal, computeReduced as computeGreekReduced } from './greek.js';
-import { computeEnglish, computeOrdinal as computeEnglishOrdinal } from './english.js';
+import {
+  computeEnglish,
+  computeOrdinal as computeEnglishOrdinal,
+  computeAgrippa as computeEnglishAgrippa,
+  computeWhiteheadGreek,
+  computeWhiteheadHebrew,
+  computeWhiteheadObjective,
+  computeWhiteheadSubjective,
+  digitalRoot,
+} from './english.js';
 
 export { computeHebrew, isHebrew, extractHebrewLetters, computeStandard as computeHebrewStandard } from './hebrew.js';
 export { computeGreek, isGreek, removeDiacritics, extractGreekLetters, computeStandard as computeGreekStandard } from './greek.js';
@@ -158,14 +167,79 @@ registerMethod({
   compute: computeGreekReduced,
 });
 
-// Register English method
+// Register English methods
+// Source: Rudolff 1525 (extended to 26 letters)
 registerMethod({
   slug: 'english_ordinal',
   name: 'English Ordinal',
   simpleName: 'ordinal',
-  description: 'English ordinal gematria (A=1, B=2, ... Z=26)',
+  description: 'Simple English ordinal (A=1...Z=26). Derived from Rudolff 1525.',
   language: 'english',
   compute: computeEnglishOrdinal,
+});
+
+registerMethod({
+  slug: 'english_ordinal',
+  name: 'Simple English',
+  simpleName: 'standard',
+  description: 'Simple English ordinal (A=1...Z=26). Standard for English.',
+  language: 'english',
+  compute: computeEnglishOrdinal,
+});
+
+// Source: Agrippa, Three Books of Occult Philosophy (1532), Book II, Ch. XX
+registerMethod({
+  slug: 'agrippa_latin',
+  name: 'Agrippa Latin',
+  description: 'Latin gematria from Agrippa (1532). Tiered values: units (1-9), tens (10-90), hundreds (100-900).',
+  language: 'english',
+  compute: computeEnglishAgrippa,
+});
+
+// Source: Whitehead, The Mystic Thesaurus (1899), pp. 58-59
+registerMethod({
+  slug: 'whitehead_greek',
+  name: 'Whitehead Greek Cabala',
+  description: 'Greek ordinal cabala from Whitehead (1899). Maps Greek letters to English.',
+  language: 'english',
+  compute: computeWhiteheadGreek,
+});
+
+// Source: Whitehead, The Mystic Thesaurus (1899), pp. 60-61
+registerMethod({
+  slug: 'whitehead_hebrew',
+  name: 'Whitehead Hebrew-English',
+  description: 'Hebrew values of English letters from Whitehead (1899).',
+  language: 'english',
+  compute: computeWhiteheadHebrew,
+});
+
+// Source: Whitehead, The Mystic Thesaurus (1899), pp. 62-63
+registerMethod({
+  slug: 'whitehead_objective',
+  name: 'Whitehead Objective Cabala',
+  description: 'English Objective Cabala from Whitehead (1899). Case-sensitive: A-Z=1-26, a-z=27-52.',
+  language: 'english',
+  compute: computeWhiteheadObjective,
+});
+
+// Source: Whitehead, The Mystic Thesaurus (1899), pp. 62-63
+registerMethod({
+  slug: 'whitehead_subjective',
+  name: 'Whitehead Subjective Cabala',
+  description: 'English Subjective Cabala from Whitehead (1899). Column X: A-M=1-13, N-T=114-120, U-Z=221-226.',
+  language: 'english',
+  compute: computeWhiteheadSubjective,
+});
+
+// Digital Root modifier (applied to ordinal by default for "reduced")
+registerMethod({
+  slug: 'english_reduced',
+  name: 'English Reduced',
+  simpleName: 'reduced',
+  description: 'Digital root of English ordinal. Source: Whitehead 1899 ("digits adding into...").',
+  language: 'english',
+  compute: (text: string) => digitalRoot(computeEnglishOrdinal(text)),
 });
 
 /**

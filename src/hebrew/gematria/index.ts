@@ -3,6 +3,21 @@
  *
  * Three letter-value systems for computing numeric values of Hebrew text.
  *
+ * SOURCES (Chicago format, all public domain):
+ *
+ * Cordovero, Moses ben Jacob. Pardes Rimonim [Garden of Pomegranates]. Safed, 1548.
+ *    Gate 30, Chapter 8: Methods of gematria including Mispar Hechrachi, Siduri, Katan.
+ *    https://www.sefaria.org/Pardes_Rimmonim.30.8
+ *
+ * Singer, Isidore, ed. The Jewish Encyclopedia. New York: Funk and Wagnalls, 1906.
+ *    s.v. "Gematria," by Caspar Levias.
+ *    https://www.jewishencyclopedia.com/articles/6643-gematria
+ *
+ * VERIFIED EXAMPLES:
+ *    - בראשית (Bereshit): ב=2 + ר=200 + א=1 + ש=300 + י=10 + ת=400 = 913 ✓
+ *    - אלהים (Elohim): א=1 + ל=30 + ה=5 + י=10 + ם=40 = 86 ✓
+ *    - שלום (Shalom): ש=300 + ל=30 + ו=6 + ם=40 = 376 ✓
+ *
  * @example
  * ```typescript
  * import { hebrew } from '@metaxia/scriptures-core';
