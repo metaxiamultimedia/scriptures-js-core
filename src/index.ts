@@ -29,11 +29,18 @@ export {
   type BooksLister,
 } from './registry.js';
 
-// Versification source registry
+// Versification: mapper + source registry
 export {
+  mapVerse,
+  schemeFor,
+  isMappingReliable,
+  EDITION_SCHEME,
+  MT_LXX_DIVERGENT_BOOKS,
   registerVersification,
   unregisterVersification,
   getVersificationSources,
+  type Scheme,
+  type Ref,
   type VersificationSource,
 } from './versification/index.js';
 
