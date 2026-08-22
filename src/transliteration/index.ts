@@ -12,6 +12,8 @@
  * downstream. This supersedes the lexicon-morpheme `getTransliteration` for
  * word-level display (that remains available for headword/lemma rendering).
  */
+// hebrew-transliteration © Charles Loder, MIT license.
+// https://github.com/charlesLoder/hebrew-transliteration
 import { transliterate as sblHebrew } from 'hebrew-transliteration';
 
 export type TranslitLanguage = 'hebrew' | 'greek';

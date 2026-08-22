@@ -419,6 +419,13 @@ Systems derived from Pardes Rimonim:
 
 All letter-value tables are computed from explicit statements in the sources. Where a source describes a method without enumerating all values (e.g., JE §E.11 says "finals count as hundreds" without listing 500–900), the values are derived by applying the stated method to the standard Hebrew alphabet. Such derivations are documented in the source code.
 
+## Third-party libraries
+
+Hebrew-to-SBL transliteration of pointed Hebrew text is performed by
+[`hebrew-transliteration`](https://github.com/charlesLoder/hebrew-transliteration)
+by Charles Loder (MIT license) — see `src/transliteration/index.ts`. The Greek
+SBL romanization is implemented directly in this package.
+
 ## License
 
 MIT
