@@ -239,6 +239,58 @@ const source = getSource('byztxt-TR');
 console.log(source?.metadata.language); // 'Greek'
 ```
 
+### Versification
+
+Map a verse reference between numbering traditions — **MT** (Hebrew/Masoretic),
+**LXX** (Septuagint), and **English** (KJV). The Old Testament is numbered
+differently across these traditions (Psalm superscriptions counted as verse 1, the
+Greek Psalter's one-off offset, Joel/Malachi chapter boundaries…). `mapVerse`
+translates a reference from one scheme to another, returning `null` when the source
+reference has no equivalent in the target scheme.
+
+```typescript
+import { mapVerse } from '@metaxia/scriptures-core';
+
+mapVerse('Psalms', 51, 1, 'MT', 'English'); // -> null  (Hebrew superscription; no KJV verse)
+mapVerse('Psalms', 51, 3, 'MT', 'English'); // -> { chapter: 51, verse: 1 }
+mapVerse('Joel', 3, 1, 'MT', 'English');    // -> { chapter: 2, verse: 28 }
+mapVerse('Genesis', 1, 1, 'MT', 'English'); // -> { chapter: 1, verse: 1 } (identity)
+```
+
+Core ships a built-in mapping registered at `priority: 0`. Richer, data-driven
+sources register through the same inversion-of-control as text sources and override
+it. `@metaxia/scriptures-source-stepbible-versification` (STEPBible **TVTMS**)
+registers at `priority: 10`, so importing it makes `mapVerse` prefer the validated
+TVTMS table for the pairs it covers:
+
+```typescript
+import '@metaxia/scriptures-source-stepbible-versification'; // auto-registers (priority 10)
+import { getVersificationSources } from '@metaxia/scriptures-core';
+
+getVersificationSources().map(s => s.id); // ['builtin', 'stepbible-versification']
+```
+
+To register a custom source, implement the `VersificationSource` contract and call
+`registerVersification`:
+
+```typescript
+import { registerVersification, type VersificationSource } from '@metaxia/scriptures-core';
+
+const mySource: VersificationSource = {
+  id: 'my-versification',
+  systems: ['MT', 'English'], // the traditions this source bridges
+  priority: 20,               // higher wins; built-in = 0
+  mapRef(book, chapter, verse, from, to) {
+    // return { chapter, verse } — or null if no equivalent in `to`
+    return { chapter, verse };
+  },
+};
+registerVersification(mySource);
+```
+
+`mapVerse` routes each `from`/`to` pair to the highest-priority registered source
+whose `systems` cover both schemes.
+
 ### Errors
 
 Custom error classes for handling specific failure cases:
