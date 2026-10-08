@@ -79,6 +79,14 @@ describe('MT <-> English (KJV) versification', () => {
     expect(mtToEnglish('Psalms', 51, 1)).toBeNull();     // two-verse title
     expect(mtToEnglish('Psalms', 51, 3)).toEqual({ chapter: 51, verse: 1 });
   });
+  it('Psalm 13 has a title offset (regression for #9 — was identity)', () => {
+    // Heb 13:1 is the superscription; Heb 13:2 = KJV 13:1. Previously mtToEnglish
+    // returned identity (13:2 -> 13:2) because Ps 13 was missing from the list.
+    expect(mtToEnglish('Psalms', 13, 1)).toBeNull();
+    expect(mtToEnglish('Psalms', 13, 2)).toEqual({ chapter: 13, verse: 1 });
+    // Tail split: Heb 13:6 -> KJV 13:5 (start of the 13:5-6 span the model can't fully express).
+    expect(mtToEnglish('Psalms', 13, 6)).toEqual({ chapter: 13, verse: 5 });
+  });
   it('single-book offsets (Genesis 32, Ezekiel 21)', () => {
     expect(mtToEnglish('Genesis', 32, 1)).toEqual({ chapter: 31, verse: 55 });
     expect(mtToEnglish('Ezekiel', 21, 1)).toEqual({ chapter: 20, verse: 45 });

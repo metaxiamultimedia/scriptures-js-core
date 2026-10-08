@@ -52,9 +52,8 @@ export const MISPAR_HECHRACHI: LetterValueTable = {
  * Quote: "Major Value, מספר גדול. In this value the final letters count
  *        as hundreds."
  *
- * Note: The specific values 500-900 for finals are inferred from "finals
- * count as hundreds" - continuing the sequence after ת=400. This is the
- * universally accepted interpretation.
+ * The five finals continue the hundreds in alphabetical order after ת=400:
+ * ך=500, ם=600, ן=700, ף=800, ץ=900.
  */
 export const MISPAR_GADOL: LetterValueTable = {
   // Units (1-9)
@@ -236,7 +235,7 @@ export const SYSTEMS: Record<string, GematriaSystem> = {
       page: 592,
       url: 'https://www.jewishencyclopedia.com/articles/6564-gematria',
       quote: 'Major Value, מספר גדול. In this value the final letters count as hundreds.',
-      note: 'Specific values 500-900 are inferred from "finals count as hundreds" - the universally accepted continuation after ת=400.',
+      note: 'The five finals continue the hundreds in order after ת=400: ך=500, ם=600, ן=700, ף=800, ץ=900.',
     },
     values: MISPAR_GADOL,
   },

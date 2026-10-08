@@ -8,6 +8,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import { computeHebrew } from '../src/gematria/index.js';
+import { misparGadol } from '../src/hebrew/gematria/index.js';
 
 describe('known findings (documented gematria results)', () => {
   // Source: "Ancient Cipher Evidence: How Translators Decoded Hidden Messages in
@@ -28,6 +29,28 @@ describe('known findings (documented gematria results)', () => {
 
     it('לַשֶּׂכְוִי (with the lamed prefix) has standard gematria 366', () => {
       expect(computeHebrew('לַשֶּׂכְוִי').standard).toBe(366);
+    });
+  });
+
+  // Source: Jewish Encyclopedia (1903), "Gematria" §E.11, p. 592 — "In this value
+  // the final letters count as hundreds." The five finals continue the hundreds
+  // after ת=400. Pinned so the published Mispar Gadol table cannot silently drift.
+  describe('Mispar Gadol — the five final letters count as hundreds', () => {
+    const gadol = (t: string) => misparGadol(t);
+
+    it('each final letter carries its hundreds value', () => {
+      expect(gadol('ך')).toBe(500);
+      expect(gadol('ם')).toBe(600);
+      expect(gadol('ן')).toBe(700);
+      expect(gadol('ף')).toBe(800);
+      expect(gadol('ץ')).toBe(900);
+    });
+
+    it('a word ending in a final letter uses the hundreds value', () => {
+      // אלהים: א1 + ל30 + ה5 + י10 + ם600 = 646 (standard 86).
+      expect(gadol('אלהים')).toBe(646);
+      // מלך: מ40 + ל30 + ך500 = 570 (standard 90).
+      expect(gadol('מלך')).toBe(570);
     });
   });
 });

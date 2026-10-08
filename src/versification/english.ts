@@ -15,8 +15,14 @@
  */
 import type { Ref } from './psalms.js';
 
+// One-verse-title psalms: Hebrew v1 is the superscription (no KJV number),
+// Hebrew v2 = KJV v1, etc. NOTE on Psalm 13: it also has a tail split — the last
+// Hebrew verse (13:6) corresponds to KJV 13:5-6. The single-Ref ±offset model
+// can't express one-Hebrew-verse → two-KJV-verses, so mtToEnglish maps Heb 13:6
+// to the START of that span (KJV 13:5); this is the same kind of documented
+// non-injective point the round-trip test already tolerates elsewhere.
 const PSALMS_WITH_TITLE_VERSE = [
-  3, 4, 5, 6, 7, 8, 9, 12, 18, 19,
+  3, 4, 5, 6, 7, 8, 9, 12, 13, 18, 19,
   20, 21, 22, 30, 31, 34, 36, 38, 39, 40,
   41, 42, 44, 45, 46, 47, 48, 49, 53, 55,
   56, 57, 58, 59, 61, 62, 63, 64, 65, 67,
