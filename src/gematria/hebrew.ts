@@ -12,7 +12,7 @@
  *
  * Singer, Isidore, ed. The Jewish Encyclopedia. New York: Funk and Wagnalls, 1906.
  *    s.v. "Gematria," by Caspar Levias.
- *    https://www.jewishencyclopedia.com/articles/6643-gematria
+ *    https://www.jewishencyclopedia.com/articles/6571-gematria
  *
  * VERIFIED EXAMPLES:
  *    - בראשית (Bereshit, Genesis 1:1): ב=2 + ר=200 + א=1 + ש=300 + י=10 + ת=400 = 913 ✓

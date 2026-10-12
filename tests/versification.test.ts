@@ -4,7 +4,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import {
-  psalmMtToLxx, psalmLxxToMt, mtToEnglish, englishToMt, mapVerse, isMappingReliable,
+  psalmMtToLxx, psalmLxxToMt, mapVerse, isMappingReliable,
 } from '../src/versification/index.js';
 
 describe('MT <-> LXX Psalm versification', () => {
@@ -62,39 +62,20 @@ describe('MT <-> LXX Psalm versification', () => {
   });
 });
 
-describe('MT <-> English (KJV) versification', () => {
-  it('Joel: MT 4 chapters -> KJV 3', () => {
-    expect(mtToEnglish('Joel', 3, 1)).toEqual({ chapter: 2, verse: 28 });
-    expect(mtToEnglish('Joel', 4, 1)).toEqual({ chapter: 3, verse: 1 });
-    expect(englishToMt('Joel', 2, 28)).toEqual({ chapter: 3, verse: 1 });
+describe('MT <-> English requires a registered source (built-in does not cover it)', () => {
+  it('returns null for MT<->English pairs when no source is registered', () => {
+    // The built-in only covers MT<->LXX. English mapping lives in a data source
+    // (@metaxia/scriptures-source-stepbible-versification / TVTMS); without it,
+    // mapVerse refuses rather than guessing from a hand-maintained table.
+    expect(mapVerse('Joel', 3, 1, 'MT', 'English')).toBeNull();
+    expect(mapVerse('Malachi', 3, 19, 'MT', 'English')).toBeNull();
+    expect(mapVerse('Genesis', 31, 55, 'English', 'MT')).toBeNull();
+    // ...including anything that would compose through English.
+    expect(mapVerse('Psalms', 22, 1, 'LXX', 'English')).toBeNull();
   });
-  it('Malachi: MT 3 chapters -> KJV 4', () => {
-    expect(mtToEnglish('Malachi', 3, 19)).toEqual({ chapter: 4, verse: 1 });
-    expect(mtToEnglish('Malachi', 3, 1)).toEqual({ chapter: 3, verse: 1 });
-    expect(englishToMt('Malachi', 4, 1)).toEqual({ chapter: 3, verse: 19 });
-  });
-  it('Psalm titles: Hebrew title verse has no KJV number', () => {
-    expect(mtToEnglish('Psalms', 3, 1)).toBeNull();      // title
-    expect(mtToEnglish('Psalms', 3, 2)).toEqual({ chapter: 3, verse: 1 });
-    expect(mtToEnglish('Psalms', 51, 1)).toBeNull();     // two-verse title
-    expect(mtToEnglish('Psalms', 51, 3)).toEqual({ chapter: 51, verse: 1 });
-  });
-  it('Psalm 13 has a title offset (regression for #9 — was identity)', () => {
-    // Heb 13:1 is the superscription; Heb 13:2 = KJV 13:1. Previously mtToEnglish
-    // returned identity (13:2 -> 13:2) because Ps 13 was missing from the list.
-    expect(mtToEnglish('Psalms', 13, 1)).toBeNull();
-    expect(mtToEnglish('Psalms', 13, 2)).toEqual({ chapter: 13, verse: 1 });
-    // Tail split: Heb 13:6 -> KJV 13:5 (start of the 13:5-6 span the model can't fully express).
-    expect(mtToEnglish('Psalms', 13, 6)).toEqual({ chapter: 13, verse: 5 });
-  });
-  it('single-book offsets (Genesis 32, Ezekiel 21)', () => {
-    expect(mtToEnglish('Genesis', 32, 1)).toEqual({ chapter: 31, verse: 55 });
-    expect(mtToEnglish('Ezekiel', 21, 1)).toEqual({ chapter: 20, verse: 45 });
-  });
-  it('composes LXX <-> English through MT (Ps 23 has no title offset)', () => {
-    // LXX Psalm 22 = MT 23 = KJV 23
-    expect(mapVerse('Psalms', 22, 1, 'LXX', 'English')).toEqual({ chapter: 23, verse: 1 });
-    expect(mapVerse('Psalms', 23, 1, 'English', 'LXX')).toEqual({ chapter: 22, verse: 1 });
+  it('reports English pairs as unreliable with no source registered', () => {
+    expect(isMappingReliable('Joel', 'MT', 'English')).toBe(false);
+    expect(isMappingReliable('Jeremiah', 'MT', 'English')).toBe(false);
   });
 });
 
@@ -105,15 +86,13 @@ describe('structurally-divergent MT<->LXX books (safe, not silently wrong)', () 
     // but reliable elsewhere
     expect(isMappingReliable('Psalms', 'MT', 'LXX')).toBe(true);
     expect(isMappingReliable('Genesis', 'MT', 'LXX')).toBe(true);
-    expect(isMappingReliable('Jeremiah', 'MT', 'English')).toBe(true);
   });
   it('refuses MT<->LXX for a divergent book rather than misaligning', () => {
     // Swete Jer 26 = the Elam oracle (MT 49:34), so identity would be wrong — return null
     expect(mapVerse('Jeremiah', 26, 1, 'MT', 'LXX')).toBeNull();
     expect(mapVerse('Jeremiah', 26, 1, 'LXX', 'MT')).toBeNull();
   });
-  it('still maps divergent books in other scheme pairs', () => {
-    expect(mapVerse('Jeremiah', 8, 23, 'MT', 'English')).toEqual({ chapter: 9, verse: 1 });
+  it('still maps undivergent books for MT<->LXX', () => {
     expect(mapVerse('Genesis', 5, 5, 'MT', 'LXX')).toEqual({ chapter: 5, verse: 5 }); // aligned book, fine
   });
 });

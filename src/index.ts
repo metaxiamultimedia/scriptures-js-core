@@ -61,6 +61,7 @@ export * as gematria from './gematria/index.js';
 export {
   compute as computeGematria,
   computeValue as computeGematriaValue,
+  computePhrase,
   computeHebrew,
   computeGreek,
   computeEnglish,
@@ -69,6 +70,7 @@ export {
   isGreek,
   listMethods as listGematriaMethods,
 } from './gematria/index.js';
+export type { PhraseGematria } from './gematria/index.js';
 
 // Morphology
 export * as morphology from './morphology/index.js';
@@ -98,6 +100,38 @@ export {
   type TransliterationResult,
 } from './lexicon/index.js';
 
+// Names (proper nouns: people, places, other named entities)
+export * as names from './names/index.js';
+export {
+  registerProperNoun,
+  unregisterProperNoun,
+  getProperNounSource,
+  listProperNounSources,
+  getAllProperNounSources,
+  hasProperNounSource,
+  clearProperNouns,
+  lookupName,
+  lookupStrongsName,
+  findNamesByRef,
+  type ProperNounSource,
+  type NameLookupOptions,
+} from './names/index.js';
+
+// Unified cipher catalog — detailed source metadata for every gematria/
+// isopsephy/temurah system across all languages (consumed by the site + agents).
+export {
+  getAllCiphers,
+  getCipher,
+  listCiphers,
+  hasCipher,
+} from './ciphers/catalog.js';
+export type {
+  CipherCatalogEntry,
+  CipherKind,
+  CipherLanguage,
+  SourceCitation,
+} from './models/types.js';
+
 // Transliteration (canonical SBL — issue #2)
 export {
   transliterate,
@@ -120,7 +154,7 @@ export {
   type GetVerseOptions,
 } from './query/verse.js';
 
-// Search types (implementations planned for future release)
+// Search types (text/morphology/strongs implementations planned for future release)
 export type {
   TextSearchResult,
   MorphologySearchResult,
@@ -130,7 +164,13 @@ export type {
   MorphologySearchOptions,
   StrongsSearchOptions,
   GematriaSearchOptions,
+  GematriaPhraseSearchOptions,
+  GematriaPhraseSearchResult,
+  PhraseBoundary,
 } from './query/search.js';
+
+// Phrase gematria search (implemented)
+export { searchByGematriaPhrase, PHRASE_MAX_WORDS_CAP } from './query/search.js';
 
 // Default export with main functions
 export default {

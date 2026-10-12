@@ -4,18 +4,14 @@
  * SOURCES (Chicago format, all public domain):
  *
  * Gow, James. "The Greek Numerical Alphabet." The Journal of Philology 12 (1883): 278-284.
- *    https://archive.org/details/journalphilolog12teleduof
- *
- * Heath, Thomas L. Diophantus of Alexandria: A Study in the History of Greek Algebra.
- *    Cambridge: Cambridge University Press, 1910.
- *    https://archive.org/details/diophaborr00teleduof
- *
- * Heath, Thomas L. A History of Greek Mathematics. 2 vols. Oxford: Clarendon Press, 1921.
- *    https://archive.org/details/historyofgreekma01teleduof
+ *    https://archive.org/details/journalofphilolo12claruoft  (standard isopsephy; quote p.279)
  *
  * Hippolytus. Refutation of All Heresies. Translated by J. H. MacMahon. Edinburgh, 1868.
  *    Book IV, Chapter 14: Pythagoras to Telauges (πυθμήν / digital root method).
- *    https://archive.org/details/antenicenefathertel05robe
+ *    https://www.newadvent.org/fathers/050104.htm  (reduced / pythmen)
+ *
+ * Ordinal numeration (α=1 … ω=24): Barry, Kieren. The Greek Qabalah (Weiser, 1999);
+ *    in-copyright, held in the bible-sources corpus (barry1999). See GREEK_SYSTEMS.ordinal.
  *
  * VERIFIED EXAMPLES:
  *    - λογος (logos): λ=30 + ο=70 + γ=3 + ο=70 + ς=200 = 373 ✓
@@ -185,4 +181,101 @@ export function computeGreek(text: string): GematriaValues {
     ordinal: computeOrdinal(text),
     reduced: computeReduced(text),
   };
+}
+
+// ============================================================================
+// System Metadata
+// ============================================================================
+
+/**
+ * Source citation for a Greek isopsephy system.
+ *
+ * Mirrors the Hebrew SourceCitation shape, with the same finer-grained quote
+ * subfields (quoteGreek / translation) so gematriabible.com's reference page
+ * can defer to core without losing its per-language quote fields.
+ *
+ * NOTE: the primary sources cited here (Gow, Heath, Hippolytus/MacMahon) are
+ * English-language works and translations, so `quoteGreek` is intentionally
+ * left unset — a Greek-language quote must come from a verified Greek edition
+ * and is NOT invented here.
+ */
+export interface GreekSourceCitation {
+  text: string;
+  section?: string;
+  url?: string;
+  /** Quote in the source's language (here: English). */
+  quote?: string;
+  /** Original-language quote, Greek. Unset until verified against a Greek edition. */
+  quoteGreek?: string;
+  /** English translation of a Greek quote. */
+  translation?: string;
+  note?: string;
+}
+
+/**
+ * Metadata for a Greek isopsephy system.
+ */
+export interface GreekSystem {
+  name: string;
+  /** Greek name of the system, where an attested term exists. */
+  greekName?: string;
+  englishName: string;
+  description: string;
+  source: GreekSourceCitation;
+}
+
+/**
+ * Greek isopsephy system metadata, parallel to the Hebrew SYSTEMS registry.
+ */
+export const GREEK_SYSTEMS: Record<string, GreekSystem> = {
+  standard: {
+    name: 'standard',
+    greekName: 'ἰσοψηφία',
+    englishName: 'Isopsephy (Standard Value)',
+    description:
+      'Milesian numeral values: α–θ as units (1–9, incl. stigma ϛ=6), ι–ϟ as tens (10–90, incl. koppa ϟ=90), ρ–ϡ as hundreds (100–900, incl. sampi ϡ=900).',
+    source: {
+      text: 'Gow, James. "The Greek Numerical Alphabet." The Journal of Philology 12 (1883): 278–284.',
+      url: 'https://archive.org/details/journalofphilolo12claruoft',
+      quote: 'But at some date, at present unknown, the Greeks adopted the practice of using the letters of the alphabet in order as their numeral signs, and this style ultimately became universal among Greek-speaking peoples.',
+      note: 'Gow 1883, p.279. Verified worked examples: λόγος = 373; θεός = 284; Ἰησοῦς = 888.',
+    },
+  },
+  ordinal: {
+    name: 'ordinal',
+    englishName: 'Ordinal Value',
+    description:
+      'Each letter valued by its position in the 24-letter alphabet (α=1 … ω=24). Archaic letters (ϛ, ϟ, ϡ) have no ordinal position.',
+    source: {
+      text: 'Barry, Kieren. The Greek Qabalah: Alphabetic Mysticism and Numerology in the Ancient World. York Beach, ME: Samuel Weiser, 1999.',
+      note: 'Barry catalogues the ordinal numeration (A=1 … Ω=24) alongside the acrophonic and Milesian systems. Letters-as-ordinals are ancient (manuscript/book enumeration, e.g. the lettered books of Aristotle\'s Metaphysics α–ω), but summing ordinal positions as a word value is a modern analytical application (cf. Hebrew Mispar Siduri); no ancient source names an ordinal *value* system. See bible-sources barry1999 / dionysiusThrax.',
+    },
+  },
+  reduced: {
+    name: 'reduced',
+    greekName: 'πυθμήν',
+    englishName: 'Pythmēn (Root / Digital Root)',
+    description:
+      'The "root" (πυθμήν): the standard value reduced to a single digit by repeated digit-summing.',
+    source: {
+      text: 'Hippolytus. Refutation of All Heresies, Book IV, Ch. 14. Translated by J. H. MacMahon, 1868.',
+      url: 'https://www.newadvent.org/fathers/050104.htm',
+      quote: 'They affirm that there is a root of each of the numbers.',
+      note: 'MacMahon English translation; the method reduces a name to a single-digit "root" (e.g. Agamemnon = 36 → root 9). The Greek term is πυθμήν; a Greek-language quote is to be back-filled from a Greek edition.',
+    },
+  },
+};
+
+/**
+ * List available Greek system names.
+ */
+export function listGreekSystems(): string[] {
+  return Object.keys(GREEK_SYSTEMS);
+}
+
+/**
+ * Get Greek system metadata by name.
+ */
+export function getGreekSystem(name: string): GreekSystem | undefined {
+  return GREEK_SYSTEMS[name];
 }

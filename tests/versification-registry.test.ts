@@ -23,23 +23,24 @@ describe('versification registry', () => {
     expect(ids).toContain('builtin');
   });
 
-  it('built-in mapVerse behavior is unchanged', () => {
-    // Spot-checks matching the existing versification test suite.
+  it('built-in covers MT<->LXX only', () => {
     expect(mapVerse('Psalms', 23, 1, 'MT', 'LXX')).toEqual({ chapter: 22, verse: 1 });
     expect(mapVerse('Psalms', 10, 1, 'MT', 'LXX')).toEqual({ chapter: 9, verse: 22 });
     expect(mapVerse('Psalms', 151, 1, 'LXX', 'MT')).toBeNull();
     expect(mapVerse('Genesis', 5, 5, 'MT', 'LXX')).toEqual({ chapter: 5, verse: 5 });
-    expect(mapVerse('Psalms', 22, 1, 'LXX', 'English')).toEqual({ chapter: 23, verse: 1 });
     expect(mapVerse('Jeremiah', 26, 1, 'MT', 'LXX')).toBeNull();
     expect(mapVerse('Psalms', 23, 1, 'MT', 'MT')).toEqual({ chapter: 23, verse: 1 });
+    // English (and anything composing through it) is NOT built in — needs a source.
+    expect(mapVerse('Psalms', 22, 1, 'LXX', 'English')).toBeNull();
   });
 
-  it('built-in isMappingReliable behavior is unchanged', () => {
+  it('built-in isMappingReliable: MT<->LXX divergence flagged, English uncovered', () => {
     expect(isMappingReliable('Jeremiah', 'MT', 'LXX')).toBe(false);
     expect(isMappingReliable('Esther', 'LXX', 'MT')).toBe(false);
     expect(isMappingReliable('Psalms', 'MT', 'LXX')).toBe(true);
     expect(isMappingReliable('Genesis', 'MT', 'LXX')).toBe(true);
-    expect(isMappingReliable('Jeremiah', 'MT', 'English')).toBe(true);
+    // No source covers MT<->English here → unreliable.
+    expect(isMappingReliable('Jeremiah', 'MT', 'English')).toBe(false);
   });
 
   it('a higher-priority source overrides the built-in for the pairs it covers', () => {
@@ -80,9 +81,11 @@ describe('versification registry', () => {
   });
 
   describe('resolveVersificationSource', () => {
-    it('resolves the built-in for covered pairs', () => {
+    it('resolves the built-in for MT<->LXX, nothing for English pairs', () => {
       expect(resolveVersificationSource('MT', 'LXX')?.id).toBe('builtin');
-      expect(resolveVersificationSource('LXX', 'English')?.id).toBe('builtin');
+      // built-in no longer covers English → no source until one is registered.
+      expect(resolveVersificationSource('LXX', 'English')).toBeUndefined();
+      expect(resolveVersificationSource('MT', 'English')).toBeUndefined();
     });
 
     it('picks by systems coverage', () => {

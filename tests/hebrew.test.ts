@@ -50,6 +50,25 @@ describe('hebrew.gematria', () => {
     it('misparHakadmi: Pardes example ה = 15', () => {
       expect(hebrew.gematria.misparHakadmi('ה')).toBe(15);
     });
+
+    // Regression guard PAST the triangular/cumulative divergence. The Pardes
+    // quote above (ג=6, ד=10, ה=15) agrees with both a triangular table and the
+    // cumulative one; they first diverge at כ. Pardes 30:8 prints the CUMULATIVE
+    // table, ending אבגד…רשת = אתצ"ה = 1495 (a triangular table would give כ=66,
+    // ת=253). These pins ensure the two can never be silently confused again.
+    it('misparHakadmi is cumulative past the divergence: כ = 75 (not triangular 66)', () => {
+      expect(hebrew.gematria.misparHakadmi('כ')).toBe(75);
+    });
+
+    it('misparHakadmi: Pardes table ends ת = 1495 (not triangular 253)', () => {
+      expect(hebrew.gematria.misparHakadmi('ת')).toBe(1495);
+    });
+
+    it('misparHakadmi equals misparKolel — one computation, two classical names', () => {
+      for (const w of ['כ', 'ת', 'שלום', 'בראשית']) {
+        expect(hebrew.gematria.misparHakadmi(w)).toBe(hebrew.gematria.misparKolel(w));
+      }
+    });
   });
 
   describe('basic sanity checks', () => {
@@ -112,10 +131,14 @@ describe('hebrew.gematria', () => {
       expect(all).toHaveProperty('misparHakadmi');
     });
 
-    it('listSystems returns 9 system names', () => {
+    it('listSystems returns all table-based system names', () => {
       const systems = hebrew.gematria.listSystems();
-      expect(systems).toHaveLength(9);
+      // 9 original + misparShemi + misparMispari = 11 (merubahKlali/imHaKolel are
+      // derived functions, not table-backed SYSTEMS entries).
+      expect(systems).toHaveLength(11);
       expect(systems).toContain('misparHechrachi');
+      expect(systems).toContain('misparShemi');
+      expect(systems).toContain('misparMispari');
     });
 
     it('getSystem returns metadata with source citation', () => {

@@ -175,4 +175,9 @@ export const ARCHAIC_LETTERS = new Set(['Ϛ', 'ϛ', 'Ϟ', 'ϟ', 'Ϡ', 'ϡ']);
  * ## Manuscript Evidence
  *
  * Attested in ~60 Byzantine manuscripts (Kalvesmaki 2006).
+ *
+ * NOTE: structured, citable per-system metadata for Greek isopsephy lives in
+ * `GREEK_SYSTEMS` (`src/gematria/greek.ts`), the single source of truth consumed
+ * by `getAllCiphers()`. This file holds only the letter-value tables used by the
+ * compute functions.
  */

@@ -2,6 +2,8 @@
 
 The foundational engine for the Scriptures JS ecosystem. Provides a unified API for querying scripture texts, computing gematria, parsing morphology, and working with lexicon data.
 
+It powers [GematriaBible.com](https://gematriabible.com) — an interlinear Bible with gematria values and Strong's numbers.
+
 ## v3.0.0 Breaking Changes
 
 - **New `hebrew` namespace**: Gematria and temurah (letter ciphers) are now under `hebrew.gematria.*` and `hebrew.temurah.*`
@@ -385,7 +387,7 @@ The foundational source for gematria system definitions.
 
 > Schechter, Solomon, and Caspar Levias. "Gematria." *The Jewish Encyclopedia: A Descriptive Record of the History, Religion, Literature, and Customs of the Jewish People from the Earliest Times to the Present Day*, edited by Isidore Singer, vol. 5, Funk and Wagnalls, 1906, pp. 589–592.
 
-- **Online**: [jewishencyclopedia.com/articles/6564-gematria](https://www.jewishencyclopedia.com/articles/6564-gematria)
+- **Online**: [jewishencyclopedia.com/articles/6571-gematria](https://www.jewishencyclopedia.com/articles/6571-gematria)
 - **Archive.org**: [archive.org/details/the-jewish-encyclopedia-vol.-5](https://archive.org/details/the-jewish-encyclopedia-vol.-5) (pages 589–592)
 - **License**: Public Domain (published 1906, copyright expired)
 

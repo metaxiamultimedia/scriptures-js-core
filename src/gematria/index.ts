@@ -16,12 +16,33 @@ import {
   computeWhiteheadSubjective,
   digitalRoot,
 } from './english.js';
+import {
+  computeLatin1683,
+  computeAgrippaSource,
+  computeBongo,
+  computeFigurate,
+  FIGURATE_SIDES,
+  computeHenningCentenary,
+  computeLatinOrdinal24,
+  computeTabourotPythagorean,
+  computeEnglishX6,
+  computeGematrixJewish,
+  computeGreekAcrophonic,
+} from './latin.js';
 
 export { computeHebrew, isHebrew, extractHebrewLetters, computeStandard as computeHebrewStandard } from './hebrew.js';
-export { computeGreek, isGreek, removeDiacritics, extractGreekLetters, computeStandard as computeGreekStandard } from './greek.js';
+export {
+  computeLatin1683, computeAgrippaSource, computeBongo, computeFigurate, polygonal,
+  computeHenningCentenary, computeLatinOrdinal24, computeTabourotPythagorean,
+  computeEnglishX6, computeGematrixJewish, computeGreekAcrophonic,
+} from './latin.js';
+export { computeGreek, isGreek, removeDiacritics, extractGreekLetters, computeStandard as computeGreekStandard, GREEK_SYSTEMS, listGreekSystems, getGreekSystem } from './greek.js';
+export type { GreekSystem, GreekSourceCitation } from './greek.js';
 export { computeEnglish, isEnglish, extractEnglishLetters } from './english.js';
 export { createGematriaProxy, createVerseGematriaProxy, createVerseGematriaWithColophonsProxy, createGetGematriaMethod, normalizeLanguage } from './proxy.js';
 export type { VerseGematriaOptions } from './proxy.js';
+export { computePhrase } from './phrase.js';
+export type { PhraseGematria } from './phrase.js';
 
 /**
  * Supported languages for gematria calculations.
@@ -187,13 +208,114 @@ registerMethod({
   compute: computeEnglishOrdinal,
 });
 
-// Source: Agrippa, Three Books of Occult Philosophy (1532), Book II, Ch. XX
+// NOTE: the legacy `agrippa_latin` map (J=600/V=700/W=900, skip 800) is actually the
+// POPULAR/gematrix reconstruction, not source-accurate Agrippa. Kept for backwards
+// compatibility; the source-accurate cipher is `latin_agrippa` (HI=800/HV=900) below,
+// and the online form is also registered as `gematrix_jewish`. See bible-sources
+// agrippa1533/agrippa1651 and scriptures-js-core issues #15/#17/#22.
 registerMethod({
   slug: 'agrippa_latin',
-  name: 'Agrippa Latin',
-  description: 'Latin gematria from Agrippa (1532). Tiered values: units (1-9), tens (10-90), hundreds (100-900).',
+  name: 'Agrippa Latin (popular form)',
+  description: 'Latin gematria, popular/gematrix reconstruction (J=600, V=700, W=900; 800 skipped). For the source-accurate cipher use latin_agrippa; this equals gematrix_jewish.',
   language: 'english',
   compute: computeEnglishAgrippa,
+});
+
+// =============================================================================
+// Latin / early-modern number-alphabet ciphers (see src/gematria/latin.ts).
+// Each cites a page-verified source held in the bible-sources corpus.
+// =============================================================================
+
+// F1 — Source: tabourot1583 (p.274/281), bongo1591 (p.625), henning1683 (p.43)
+registerMethod({
+  slug: 'latin_1683',
+  name: '1683 Alphabet',
+  description: 'Latin number-alphabet triad (A=1…I=9, K=10…S=90, T=100, U/V=200, X=300, Y=400, Z=500). J→I, W unmapped. Source: Tabourot 1583/Bongo 1591. Validates MARTIN LAVTER=666.',
+  language: 'english',
+  compute: computeLatin1683,
+});
+
+// F2 — Source: agrippa1533/agrippa1651 (Bk II ch XX)
+registerMethod({
+  slug: 'latin_agrippa',
+  name: 'Agrippa cipher (source-accurate)',
+  description: 'Agrippa 1533/1651 27-char cipher: triad + consonantal I=600 (J), V=700, aspirate HI=800, HV=900. Modern-letter transliteration with HI/HV digraphs.',
+  language: 'english',
+  compute: computeAgrippaSource,
+});
+
+// F2 — Source: bongo1591 (p.625)
+registerMethod({
+  slug: 'latin_bongo',
+  name: 'Bongo cipher',
+  description: 'Bongo 1591 variant of the Agrippa extension: I=600, V=700, H=800 (bare), HV=900. Differs from Agrippa only at 800 (H vs HI digraph).',
+  language: 'english',
+  compute: computeBongo,
+});
+
+// F3 — Source: stifel1544/stifel1553 (figurate origin), homer1619, henning1683 (§X–XVIII)
+for (const [name, sides] of Object.entries(FIGURATE_SIDES)) {
+  registerMethod({
+    slug: `latin_henning_${name}`,
+    name: `Henning ${name.charAt(0).toUpperCase() + name.slice(1)} (figurate)`,
+    description: `Figurate number-alphabet (value = n-th ${name} number over the 24-letter Latin alphabet). Origin: Stifel 1544/1553; catalogued: Henning 1683 §X–XVIII.`,
+    language: 'english',
+    compute: (text: string) => computeFigurate(text, sides),
+  });
+}
+
+// F4 — Source: henning1683 (§XXIV p.46)
+registerMethod({
+  slug: 'latin_henning_centenary',
+  name: 'Henning Centenary alphabet',
+  description: 'Henning 1683 §XXIV: triad units/tens, but the last four letters grow by tens (T=100, V=110, W=120, X=130, Y=140, Z=150).',
+  language: 'english',
+  compute: computeHenningCentenary,
+});
+
+// F4 — Source: henning1683 (§XXV p.47)
+registerMethod({
+  slug: 'latin_ordinal_24',
+  name: 'Latin natural-order ordinal (A=1…Z=24)',
+  description: 'Henning 1683 §XXV: 24-letter natural order (no J, U=V). Distinct from the modern 26-letter english_ordinal.',
+  language: 'english',
+  compute: computeLatinOrdinal24,
+});
+
+// F5 — Source: tabourot1583 (p.276). ⚠ Divinatory (mod 5/9/7); returns raw sum.
+registerMethod({
+  slug: 'latin_tabourot_pythagorean',
+  name: 'Tabourot Pythagorean cipher',
+  description: 'Tabourot 1583 (p.276) irregular "sphere of Pythagoras" name-cipher. Historically a divinatory mod-reduction, not a summation; returns the raw letter-sum.',
+  language: 'english',
+  compute: computeTabourotPythagorean,
+});
+
+// F7 — Source: stanton1977 (p.49), Relfe 1981. Modern (NOT ancient/Crowley).
+registerMethod({
+  slug: 'english_gematria_x6',
+  name: 'English Gematria (×6)',
+  description: 'English ordinal × 6 (A=6…Z=156). Modern apocalyptic cipher; earliest page-verified: Stanton 1977 (KISSINGER=666), popularized by Relfe 1981. Misnomer "Sumerian".',
+  language: 'english',
+  compute: computeEnglishX6,
+});
+
+// F7 — the popular online "Jewish Gematria" (= Agrippa J/V/W form). Misnomer.
+registerMethod({
+  slug: 'gematrix_jewish',
+  name: 'Jewish Gematria (gematrix popular form)',
+  description: 'Agrippa applied to English in the popular J=600/V=700/W=900 (skip-800) form used by gematrix/Gematrinator. A misnomer (unrelated to Hebrew gematria). Cf. source-accurate latin_agrippa.',
+  language: 'english',
+  compute: computeGematrixJewish,
+});
+
+// F6 — Source: tabourot1583 (p.274). Greek namespace; base symbols only.
+registerMethod({
+  slug: 'greek_acrophonic',
+  name: 'Greek Acrophonic (Herodianic) numerals',
+  description: 'Greek acrophonic/Herodianic numerals: Ι=1, Π=5, Δ=10, Η=100, Χ=1000 (base symbols; compositional parsing not modelled). Source: Tabourot 1583 p.274.',
+  language: 'greek',
+  compute: computeGreekAcrophonic,
 });
 
 // Source: Whitehead, The Mystic Thesaurus (1899), pp. 58-59

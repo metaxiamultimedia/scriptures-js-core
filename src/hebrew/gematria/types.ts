@@ -19,8 +19,14 @@ export interface SourceCitation {
   page?: number;
   /** URL to source */
   url?: string;
-  /** Exact quote from source */
+  /** Exact quote from source (English, or the original where no language-specific field applies) */
   quote?: string;
+  /** Original-language quote, Hebrew */
+  quoteHebrew?: string;
+  /** Original-language quote, Greek */
+  quoteGreek?: string;
+  /** English translation of the original-language quote */
+  translation?: string;
   /** Additional notes about derivation */
   note?: string;
 }

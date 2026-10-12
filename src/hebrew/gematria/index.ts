@@ -30,6 +30,8 @@ import {
   MISPAR_CHITZON,
   MISPAR_SIDURI,
   MISPAR_HAKADMI,
+  MISPAR_SHEMI,
+  MISPAR_MISPARI,
   SYSTEMS,
 } from './systems.js';
 
@@ -177,6 +179,55 @@ export function misparHakadmi(text: string, options?: GematriaOptions): number {
   return computeWithTable(text, MISPAR_HAKADMI, 'misparHakadmi', options).value;
 }
 
+/**
+ * Mispar Shemi / Milui (מילוי) - Filling / Name Value
+ *
+ * Each letter valued by the standard value of its spelled-out name
+ * (default: the מ"ה filling). e.g. א → אלף = 111; יהוה = 45.
+ *
+ * Source: Pardes Rimonim (1548), Gate 30, Chapter 8, §ז
+ */
+export function misparShemi(text: string, options?: GematriaOptions): number {
+  return computeWithTable(text, MISPAR_SHEMI, 'misparShemi', options).value;
+}
+
+/**
+ * Mispar Ha-Mispari (מספר המספרי) - Number-Name Value
+ *
+ * Each letter replaced by the Hebrew word for its value, summed
+ * (masculine defective spellings). e.g. י → עשרה = 575.
+ *
+ * Source: Pardes Rimonim (1548), Gate 30, Chapter 8, §ח
+ */
+export function misparMispari(text: string, options?: GematriaOptions): number {
+  return computeWithTable(text, MISPAR_MISPARI, 'misparMispari', options).value;
+}
+
+/**
+ * Mispar Ha-Merubah Ha-Klali (מספר המרובע הכללי) - Square of the Whole Word
+ *
+ * The standard total squared. e.g. דוד = 14, 14² = 196. Empty input → 0.
+ *
+ * Source: Pardes Rimonim (1548), Gate 30, Chapter 8, §ה
+ */
+export function misparMerubahKlali(text: string): number {
+  const sum = misparHechrachi(text);
+  return sum * sum;
+}
+
+/**
+ * Im Ha-Kolel (עם הכולל) - Standard total plus one (the word counted as a unit).
+ *
+ * e.g. שפה = 385 + 1 = 386 (= לשון). Empty input → 0 (not 1).
+ *
+ * Source: Pardes Rimonim (1548), Gate 30, Chapter 8, §ד ("או המלה עצמה");
+ * Ba'al HaTurim on Genesis 11:1.
+ */
+export function imHaKolel(text: string): number {
+  const sum = misparHechrachi(text);
+  return sum === 0 ? 0 : sum + 1;
+}
+
 // ============================================================================
 // Extended API - Returns full result with metadata
 // ============================================================================
@@ -210,6 +261,10 @@ export function computeAll(text: string, options?: GematriaOptions): Record<stri
     misparChitzon: misparChitzon(text, options),
     misparSiduri: misparSiduri(text, options),
     misparHakadmi: misparHakadmi(text, options),
+    misparShemi: misparShemi(text, options),
+    misparMispari: misparMispari(text, options),
+    misparMerubahKlali: misparMerubahKlali(text),
+    imHaKolel: imHaKolel(text),
   };
 }
 

@@ -27,7 +27,7 @@
  * See: sources/english/SYSTEMS_BY_SOURCE.md for complete documentation
  */
 
-import type { GematriaValues } from '../models/types.js';
+import type { GematriaValues, CipherCatalogEntry } from '../models/types.js';
 
 // =============================================================================
 // SIMPLE ORDINAL (Modern English, derived from Rudolff 1525)
@@ -380,4 +380,132 @@ export {
   WHITEHEAD_HEBREW_ENGLISH,
   WHITEHEAD_OBJECTIVE,
   WHITEHEAD_SUBJECTIVE,
+};
+
+// =============================================================================
+// STRUCTURED METADATA CATALOG
+// =============================================================================
+
+/**
+ * Structured metadata catalog for the English gematria/cabala systems.
+ *
+ * Mirrors the Hebrew `SYSTEMS` catalog using the shared `CipherCatalogEntry`, so
+ * `getAllCiphers()` can expose detailed, citable provenance for every English
+ * system (previously held only as prose in the legacy GematriaMethod registry).
+ *
+ * Latin / early-modern ciphers that happen to operate on ASCII letters live in
+ * `latin.ts` (`LATIN_SYSTEMS`), not here.
+ */
+export const ENGLISH_SYSTEMS: Record<string, CipherCatalogEntry> = {
+  simple_ordinal: {
+    id: 'english-simple-ordinal',
+    language: 'english',
+    kind: 'gematria',
+    name: 'Simple English Ordinal',
+    englishName: 'Simple / Ordinal',
+    aliases: ['english_ordinal', 'ordinal', 'standard', 'simple'],
+    description: 'Position of each letter in the modern 26-letter alphabet (A=1 … Z=26). Case-insensitive.',
+    source: {
+      text: 'Positional convention (no single originating source)',
+      note: 'A=1 … Z=26 is simply each letter’s position in the modern 26-letter alphabet — a trivial, conventional ordinal not attributable to one historical work. (The attested 24-letter natural-order Latin ordinal is a distinct, sourced system — see latin-ordinal-24, Henning 1683 §XXV.)',
+    },
+    values: SIMPLE_ORDINAL,
+  },
+  agrippa_latin: {
+    id: 'english-agrippa-popular',
+    language: 'english',
+    kind: 'gematria',
+    name: 'Agrippa Latin (popular form)',
+    englishName: 'Agrippa (popular / gematrix form)',
+    aliases: ['agrippa_latin'],
+    description:
+      'Tiered Latin cipher applied to English (units/tens/hundreds) in the popular reconstruction J=600, V=700, W=900 (800 skipped). Numerically identical to the online "Jewish Gematria" (gematrix_jewish). For the source-accurate Agrippa cipher see latin-agrippa.',
+    source: {
+      text: 'Agrippa von Nettesheim, H. C. Three Books of Occult Philosophy. Trans. J.F. London: Gregory Moule, 1651. Bk II, ch. XX, pp. 236–238.',
+      section: 'Bk II, ch. XX',
+      page: 236,
+      url: 'https://archive.org/details/threebooksoccult/page/244/mode/1up',
+      note: 'This popular J/V/W (skip-800) form differs from the source-accurate Agrippa cipher (HI=800, HV=900) implemented as latin-agrippa.',
+    },
+    values: AGRIPPA_LATIN,
+  },
+  whitehead_greek: {
+    id: 'english-whitehead-greek',
+    language: 'english',
+    kind: 'gematria',
+    name: 'Whitehead Greek Cabala',
+    englishName: 'Greek Cabala (Natural)',
+    aliases: ['whitehead_greek'],
+    description: 'English letters mapped to Greek letter positions (ordinal 1–24). Whitehead’s "Natural Cabala". Example: GOD = 22.',
+    source: {
+      text: 'Whitehead, Willis F. The Mystic Thesaurus. Chicago: Willis F. Whitehead, 1899.',
+      page: 58,
+      url: 'https://archive.org/details/mysticthesaurus00whitgoog',
+      quote: 'Greek Cabala, pp. 58–59.',
+    },
+    values: WHITEHEAD_GREEK,
+  },
+  whitehead_hebrew: {
+    id: 'english-whitehead-hebrew',
+    language: 'english',
+    kind: 'gematria',
+    name: 'Whitehead Hebrew-English',
+    englishName: 'Hebrew Values of English',
+    aliases: ['whitehead_hebrew'],
+    description: 'English letters mapped to their Hebrew gematria equivalents. Whitehead’s "Human Cabala".',
+    source: {
+      text: 'Whitehead, Willis F. The Mystic Thesaurus. Chicago: Willis F. Whitehead, 1899.',
+      page: 60,
+      url: 'https://archive.org/details/mysticthesaurus00whitgoog',
+      quote: 'Hebrew Values of English, pp. 60–61.',
+    },
+    values: WHITEHEAD_HEBREW_ENGLISH,
+  },
+  whitehead_objective: {
+    id: 'english-whitehead-objective',
+    language: 'english',
+    kind: 'gematria',
+    name: 'Whitehead Objective Cabala',
+    englishName: 'English Objective (Divine) Cabala',
+    aliases: ['whitehead_objective'],
+    description: 'Case-sensitive 52-symbol cabala: uppercase A–Z = 1–26 ("major"), lowercase a–z = 27–52 ("minor").',
+    source: {
+      text: 'Whitehead, Willis F. The Mystic Thesaurus. Chicago: Willis F. Whitehead, 1899.',
+      page: 62,
+      url: 'https://archive.org/details/mysticthesaurus00whitgoog',
+      quote: 'English Objective/Subjective Cabala, pp. 62–65.',
+    },
+    values: WHITEHEAD_OBJECTIVE,
+  },
+  whitehead_subjective: {
+    id: 'english-whitehead-subjective',
+    language: 'english',
+    kind: 'gematria',
+    name: 'Whitehead Subjective Cabala',
+    englishName: 'English Subjective Cabala',
+    aliases: ['whitehead_subjective'],
+    description: 'Column "X" of Whitehead’s cabala: A–M = 1–13, N–T = 114–120, U–Z = 221–226. Example: IESUS = 473.',
+    source: {
+      text: 'Whitehead, Willis F. The Mystic Thesaurus. Chicago: Willis F. Whitehead, 1899.',
+      page: 62,
+      url: 'https://archive.org/details/mysticthesaurus00whitgoog',
+      quote: 'English Objective/Subjective Cabala, pp. 62–65.',
+    },
+    values: WHITEHEAD_SUBJECTIVE,
+  },
+  english_reduced: {
+    id: 'english-reduced',
+    language: 'english',
+    kind: 'gematria',
+    name: 'English Reduced',
+    englishName: 'Reduced (digital root)',
+    aliases: ['english_reduced', 'reduced'],
+    description: 'Digital root (Pythagorean reduction) of the Simple English Ordinal value to a single digit 1–9.',
+    source: {
+      text: 'Whitehead, Willis F. The Mystic Thesaurus. Chicago: Willis F. Whitehead, 1899.',
+      url: 'https://archive.org/details/mysticthesaurus00whitgoog',
+      quote: 'Describes reducing "the digits, adding into..." a single figure.',
+    },
+    computed: true,
+  },
 };

@@ -25,7 +25,7 @@
  * Schechter, Solomon, and Caspar Levias. "Gematria." *Jewish Encyclopedia*,
  *   vol. 5, 589–92. New York: Funk and Wagnalls, 1903.
  *
- * - Jewish Encyclopedia: https://www.jewishencyclopedia.com/articles/6564-gematria
+ * - Jewish Encyclopedia: https://www.jewishencyclopedia.com/articles/6571-gematria
  * - Internet Archive (Vol. 5): https://archive.org/details/TheJewishEncyclopediaFunkWagnallVolVDreyfusBrisacGoat1902
  *
  * ### Pardes Rimonim (1548)

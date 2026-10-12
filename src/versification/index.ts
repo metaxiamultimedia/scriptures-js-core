@@ -4,14 +4,18 @@
  * Editions number chapters/verses differently. This module maps a reference
  * between versification SCHEMES so that parallel lookups line up.
  *
- * Coverage today:
+ * Built-in coverage (zero-dependency, no data package required):
  *   - MT <-> LXX Psalms: FULLY mapped + empirically verified (see ./psalms).
- *   - MT <-> English (KJV): full per-book offsets (Psalm titles, Joel, Malachi,
- *     Samuel/Kings/Chronicles, Torah, the Twelve…; see ./english).
  *   - Other books MT<->LXX: identity, and only partial — some books have real
  *     MT/LXX offsets not yet encoded (e.g. LXX Gen 31:55 = MT 32:1), so non-Psalms
  *     MT<->LXX is unverified (see isMappingReliable()).
- *   - LXX <-> English composes through the Masoretic pivot.
+ *
+ * MT <-> English (KJV) and anything composing through it (LXX <-> English) are NOT
+ * built in. They require a registered versification source — register
+ * `@metaxia/scriptures-source-stepbible-versification` (TVTMS), which covers the
+ * full MT/LXX/English matrix at verse granularity. Without such a source,
+ * `mapVerse()` returns null for those pairs (and isMappingReliable() reports them
+ * unreliable) rather than a hand-maintained table that drifts from the data.
  *
  * Structurally-divergent MT<->LXX books (Jeremiah's whole-book reorder, Exodus
  * 35–40, 1 Kings/3 Kingdoms, Joshua, Proverbs, Daniel/Esther additions) are
@@ -20,7 +24,6 @@
  * unreliable. Completing them needs edition-specific verse-mapping data.
  */
 import { psalmMtToLxx, psalmLxxToMt, type Ref } from './psalms.js';
-import { mtToEnglish, englishToMt } from './english.js';
 import type { Scheme } from './schemes.js';
 import { getSource } from '../registry.js';
 import {
@@ -111,8 +114,7 @@ function toMt(book: string, chapter: number, verse: number, from: Scheme): Ref |
     if (MT_LXX_DIVERGENT_BOOKS.has(book)) return null; // refuse rather than misalign
     return { chapter, verse };
   }
-  // English (KJV)
-  return englishToMt(book, chapter, verse);
+  return null; // English requires a registered versification source (TVTMS)
 }
 
 /** Convert a Masoretic reference into the `to` scheme. */
@@ -123,17 +125,18 @@ function fromMt(book: string, chapter: number, verse: number, to: Scheme): Ref |
     if (MT_LXX_DIVERGENT_BOOKS.has(book)) return null; // refuse rather than misalign
     return { chapter, verse };
   }
-  return mtToEnglish(book, chapter, verse); // English (KJV), may be null
+  return null; // English requires a registered versification source (TVTMS)
 }
 
 /**
- * Built-in versification source: the MT/LXX/English pivot logic, wrapped as a
- * registered source. Lowest priority (0) so a future data-driven source can
- * override it. Behavior is identical to the historical inline implementation.
+ * Built-in versification source: the MT<->LXX pivot logic (Psalms verified; other
+ * books identity where undivergent), wrapped as a registered source. Lowest
+ * priority (0) so a data-driven source (TVTMS) overrides it. MT<->English is
+ * intentionally NOT covered here — it belongs to a registered data source.
  */
 const builtin: VersificationSource = {
   id: 'builtin',
-  systems: ['MT', 'LXX', 'English'],
+  systems: ['MT', 'LXX'],
   priority: 0,
   mapRef(book, chapter, verse, from, to) {
     if (from === to) return { chapter, verse };
@@ -153,10 +156,10 @@ registerVersification(builtin);
 
 /**
  * Map a reference from one versification scheme to another. Routes to the
- * resolved versification source (pivoting through the Masoretic numbering in the
- * built-in, so LXX<->English composes). Returns null when the source ref has no
- * equivalent in the target scheme (e.g. LXX Psalm 151, or a Hebrew verse with no
- * distinct KJV verse), or when no registered source covers the pair.
+ * highest-priority registered source that covers the pair. Returns null when the
+ * source ref has no equivalent in the target scheme (e.g. LXX Psalm 151), or when
+ * no registered source covers the pair — notably any pair involving English,
+ * which the built-in does not cover: register a data source (TVTMS) for those.
  */
 export function mapVerse(
   book: string,
@@ -170,7 +173,7 @@ export function mapVerse(
   return src ? src.mapRef(book, chapter, verse, from, to) : null;
 }
 
-export { psalmMtToLxx, psalmLxxToMt, mtToEnglish, englishToMt };
+export { psalmMtToLxx, psalmLxxToMt };
 // Re-export `Ref` (imported from ./psalms) here.
 export type { Ref };
 
